@@ -1,0 +1,1035 @@
+(* ::Package:: *)
+
+(*
+This script uses the nomenclature, formulations and solutions from: 
+M. Avillez and D. Arnas, "Osculating and Mean Asynchronous Relative Motion 
+Approximations Under J2 and Atmospheric Drag", TODO
+
+Summary: Provides the 3rd order relative state osculating solution.
+
+Notation:
+	tt: argument of latitude at which to compute the osculating relative state
+    mu: gravitational parameter
+    j2: J2 coefficient of the gravity model
+    R: Radius of the central planet
+    tti: Initial argument of latitude
+    kD: Ballistic parameter of the deputy (D)
+    rhoD: Atmospheric density acting on the deputy (D)
+    kC: Ballistic parameter of the chief (C)
+    rhoC: Atmospheric density acting on the chief (C)
+    [dbbi; dxi; dyi; dpi; dooi; dti]: initial osculating relative state
+    [bbCi; xCi; yCi; pCi; ooCi; tCi]: initial osculating state of the deputy
+
+Solution can be imported to a Mathematica notebook (.nb extension) using 
+the Import[...] command.
+*)
+
+dbb[tt_] = (bbCi^2*(32*bbCi*dbbi + 261*bbCi^9*dbbi*j2^2 - 
+        152*bbCi^12*dpi*j2^2*pCi - 836*bbCi^11*dbbi*j2^2*pCi^2 + 
+        188*bbCi^14*dpi*j2^2*pCi^3 + 611*bbCi^13*dbbi*j2^2*pCi^4 - 
+        8*bbCi^6*dxi*j2^2*Cos[3*tt] + 8*bbCi^8*dxi*j2^2*pCi^2*Cos[3*tt] - 
+        40*bbCi^5*dbbi*j2^2*xCi*Cos[3*tt] + 16*bbCi^8*dpi*j2^2*pCi*xCi*
+         Cos[3*tt] + 56*bbCi^7*dbbi*j2^2*pCi^2*xCi*Cos[3*tt] + 
+        135*bbCi^9*dbbi*j2^2*Cos[4*tt] - 96*bbCi^12*dpi*j2^2*pCi*Cos[4*tt] - 
+        528*bbCi^11*dbbi*j2^2*pCi^2*Cos[4*tt] + 132*bbCi^14*dpi*j2^2*pCi^3*
+         Cos[4*tt] + 429*bbCi^13*dbbi*j2^2*pCi^4*Cos[4*tt] + 
+        6*bbCi^4*j2*(20*bbCi*dbbi + 40*dbbi^2 - 4*bbCi^4*dpi^2 + 
+          9*bbCi^5*dbbi*j2 - 4*bbCi^3*dpi*(2*bbCi + 14*dbbi + 5*bbCi^5*j2)*
+           pCi - 2*bbCi^2*dbbi*(14*bbCi + 42*dbbi + 55*bbCi^5*j2)*pCi^2 + 
+          36*bbCi^10*dpi*j2*pCi^3 + 117*bbCi^9*dbbi*j2*pCi^4)*Cos[2*tti] - 
+        6*bbCi^4*j2*Cos[2*tt]*(20*bbCi*dbbi + 40*dbbi^2 - 27*bbCi^5*dbbi*j2 + 
+          12*bbCi^8*dpi*j2*pCi - 84*bbCi^2*dbbi^2*pCi^2 + 
+          66*bbCi^7*dbbi*j2*pCi^2 - 12*bbCi^10*dpi*j2*pCi^3 - 
+          39*bbCi^9*dbbi*j2*pCi^4 - 28*bbCi^3*dbbi*pCi*(2*dpi + pCi) - 
+          4*bbCi^4*dpi*(dpi + 2*pCi) + 3*bbCi^5*j2*
+           (4*bbCi^3*dpi*pCi*(-6 + 7*bbCi^2*pCi^2) + 
+            dbbi*(45 - 132*bbCi^2*pCi^2 + 91*bbCi^4*pCi^4))*Cos[2*tti]) + 
+        4*bbCi^9*j2^2*Cos[tt]^3*(-3*(4*bbCi^3*dpi*pCi*(-3 + 5*bbCi^2*pCi^2) + 
+            dbbi*(9 - 66*bbCi^2*pCi^2 + 65*bbCi^4*pCi^4))*Cos[tti] + 
+          7*(-1 + bbCi^2*pCi^2)*(4*bbCi^3*dpi*pCi + 
+            dbbi*(-9 + 13*bbCi^2*pCi^2))*Cos[3*tti]) + 
+        6*bbCi^9*j2^2*(-1 + bbCi^2*pCi^2)*(4*bbCi^3*dpi*pCi + 
+          dbbi*(-9 + 13*bbCi^2*pCi^2))*Cos[4*tti] + 24*bbCi^6*dyi*j2^2*
+         Sin[tt] - 24*bbCi^8*dyi*j2^2*pCi^2*Sin[tt] + 16*j2*kC*R*rhoC*xCi*
+         Sin[tt] - 16*j2*kD*R*rhoD*xCi*Sin[tt] + 120*bbCi^5*dbbi*j2^2*yCi*
+         Sin[tt] - 48*bbCi^8*dpi*j2^2*pCi*yCi*Sin[tt] - 
+        168*bbCi^7*dbbi*j2^2*pCi^2*yCi*Sin[tt] - 2*bbCi^4*j2*Cos[3*tti]*
+         (4*bbCi*j2*(-(bbCi*dxi) - 5*dbbi*xCi + 7*bbCi^2*dbbi*pCi^2*xCi + 
+            bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi)) + 7*(-1 + bbCi^2*pCi^2)*R*
+           (-(kC*rhoC) + kD*rhoD)*Sin[tt]) - 2*j2*Cos[tti]*
+         (12*bbCi^5*j2*(-(bbCi*dxi) - 5*dbbi*xCi + 7*bbCi^2*dbbi*pCi^2*xCi + 
+            bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi)) + 8*R*(-(kC*rhoC) + kD*rhoD)*
+           yCi + bbCi^4*R*(-(kC*rhoC) + kD*rhoD)*(11 - 23*bbCi^2*pCi^2 + 
+            8*(-1 + bbCi^2*pCi^2)*Cos[2*tt])*Sin[tt]) - 
+        26*bbCi^4*j2*kC*R*rhoC*Sin[2*tt] + 14*bbCi^6*j2*kC*pCi^2*R*rhoC*
+         Sin[2*tt] + 26*bbCi^4*j2*kD*R*rhoD*Sin[2*tt] - 
+        14*bbCi^6*j2*kD*pCi^2*R*rhoD*Sin[2*tt] - 8*bbCi^6*dyi*j2^2*
+         Sin[3*tt] + 8*bbCi^8*dyi*j2^2*pCi^2*Sin[3*tt] - 
+        40*bbCi^5*dbbi*j2^2*yCi*Sin[3*tt] + 16*bbCi^8*dpi*j2^2*pCi*yCi*
+         Sin[3*tt] + 56*bbCi^7*dbbi*j2^2*pCi^2*yCi*Sin[3*tt] + 
+        4*j2*(4*R*(-(kC*rhoC) + kD*rhoD)*xCi + 6*bbCi^5*j2*
+           (-(bbCi*dyi) - 5*dbbi*yCi + 7*bbCi^2*dbbi*pCi^2*yCi + 
+            bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi)) + 3*bbCi^9*j2*
+           (4*bbCi^3*dpi*pCi*(-5 + 7*bbCi^2*pCi^2) + 
+            dbbi*(27 - 110*bbCi^2*pCi^2 + 91*bbCi^4*pCi^4))*Sin[tt]^3)*
+         Sin[tti] + 4*j2*Cos[tt]*(6*bbCi^5*j2*(-(bbCi*dxi) - 5*dbbi*xCi + 
+            7*bbCi^2*dbbi*pCi^2*xCi + bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi)) + 
+          4*R*(-(kC*rhoC) + kD*rhoD)*yCi + bbCi^4*R*(-(kC*rhoC) + kD*rhoD)*
+           (-3*(1 + bbCi^2*pCi^2) + 4*(-1 + bbCi^2*pCi^2)*Cos[2*tt] + 
+            7*(-1 + bbCi^2*pCi^2)*Cos[2*tti])*Sin[tti]) - 
+        2*bbCi^4*j2*(1 + 5*bbCi^2*pCi^2)*R*(-(kC*rhoC) + kD*rhoD)*
+         Sin[2*tti] + 4*bbCi^5*j2^2*(10*dbbi*yCi + 
+          2*bbCi*(dyi - bbCi^2*dyi*pCi^2 - bbCi*pCi*(2*bbCi*dpi + 7*dbbi*pCi)*
+             yCi) - 7*bbCi^4*(-1 + bbCi^2*pCi^2)*(4*bbCi^3*dpi*pCi + 
+            dbbi*(-9 + 13*bbCi^2*pCi^2))*Sin[tt]^3)*Sin[3*tti]) - 
+      (tt - tti)*(-4*bbCi^2*kC*(-4 - 3*bbCi^4*j2 + 15*bbCi^6*j2*pCi^2)*R*
+         rhoC + 4*kD*(-4*bbCi^2 + 4*bbCi*dbbi - 4*dbbi^2 - 3*bbCi^6*j2 - 
+          9*bbCi^5*dbbi*j2 + 75*bbCi^7*dbbi*j2*pCi^2 + 15*bbCi^8*j2*pCi*
+           (2*dpi + pCi))*R*rhoD + 18*bbCi^11*j2^3*(bbCi*dyi + 9*dbbi*yCi - 
+          66*bbCi^2*dbbi*pCi^2*yCi + 65*bbCi^4*dbbi*pCi^4*yCi - 
+          6*bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi) + 5*bbCi^5*pCi^3*
+           (dyi*pCi + 4*dpi*yCi))*Cos[tt] - 60*bbCi^5*j2*R*
+         (bbCi*kC*(1 - bbCi^2*pCi^2)*rhoC + 
+          kD*(-3*dbbi + bbCi*(-1 + bbCi*pCi*(5*dbbi*pCi + bbCi*(2*dpi + 
+                  pCi))))*rhoD)*Cos[2*tt] + 3*bbCi^5*j2*
+         (2*bbCi^6*j2^2*(bbCi*dyi + 9*dbbi*yCi - 66*bbCi^2*dbbi*pCi^2*yCi + 
+            65*bbCi^4*dbbi*pCi^4*yCi - 6*bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi) + 
+            5*bbCi^5*pCi^3*(dyi*pCi + 4*dpi*yCi))*Cos[3*tt] - 
+          4*R*(bbCi*kC*(1 - bbCi^2*pCi^2)*rhoC + 
+            kD*(-3*dbbi + bbCi*(-1 + bbCi*pCi*(5*dbbi*pCi + bbCi*(2*dpi + 
+                    pCi))))*rhoD)*Cos[2*tti] + bbCi^6*j2^2*
+           (8*(bbCi*dxi + 9*dbbi*xCi - 66*bbCi^2*dbbi*pCi^2*xCi + 
+              65*bbCi^4*dbbi*pCi^4*xCi - 6*bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi) + 
+              5*bbCi^5*pCi^3*(dxi*pCi + 4*dpi*xCi)) - 
+            3*bbCi^4*(-1 + 5*bbCi^2*pCi^2)*(2*bbCi^3*dpi*pCi*(-11 + 
+                15*bbCi^2*pCi^2) + dbbi*(13 - 100*bbCi^2*pCi^2 + 
+                95*bbCi^4*pCi^4))*Cos[tti] + 7*bbCi^4*(-1 + bbCi^2*pCi^2)*
+             (2*bbCi^3*dpi*pCi*(-7 + 15*bbCi^2*pCi^2) + dbbi*(13 - 
+                92*bbCi^2*pCi^2 + 95*bbCi^4*pCi^4))*Cos[3*tti])*Sin[tt]^3) - 
+        3*bbCi^15*j2^3*Cos[tt]^3*
+         (3*(2*bbCi^3*dpi*pCi*(25 - 114*bbCi^2*pCi^2 + 105*bbCi^4*pCi^4) + 
+            dbbi*(-39 + 375*bbCi^2*pCi^2 - 969*bbCi^4*pCi^4 + 
+              665*bbCi^6*pCi^6))*Sin[tti] - 7*(-1 + bbCi^2*pCi^2)*
+           (2*bbCi^3*dpi*pCi*(-7 + 15*bbCi^2*pCi^2) + 
+            dbbi*(13 - 92*bbCi^2*pCi^2 + 95*bbCi^4*pCi^4))*Sin[3*tti])))/
+     (32*bbCi^3)
+ 
+dx[tt_] = (27*bbCi^9*j2^3*(tt - tti)^2*(-8*bbCi*dxi*(1 - 5*bbCi^2*pCi^2)*
+         (bbCi + 8*dbbi - 5*bbCi^2*pCi*(12*dbbi*pCi + bbCi*(4*dpi + pCi))) - 
+        16*(4*bbCi*dbbi + 14*dbbi^2 - 225*bbCi^2*dbbi^2*pCi^2 - 
+          50*bbCi^3*dbbi*pCi*(2*dpi + pCi) + 150*bbCi^5*dbbi*pCi^3*
+           (4*dpi + pCi) + 25*bbCi^6*dpi*pCi^2*(3*dpi + 2*pCi) - 
+          5*bbCi^4*(dpi^2 + 2*dpi*pCi - 165*dbbi^2*pCi^4))*xCi - 
+        bbCi^4*(-9*(-1 + 5*bbCi^2*pCi^2)*(4*bbCi*dbbi + 22*dbbi^2 - 
+            345*bbCi^2*dbbi^2*pCi^2 + 150*bbCi^5*dbbi*pCi^3*(6*dpi + pCi) + 
+            25*bbCi^6*dpi*pCi^2*(5*dpi + 2*pCi) - 10*bbCi^3*dbbi*pCi*
+             (14*dpi + 5*pCi) - 5*bbCi^4*(dpi^2 + 2*dpi*pCi - 
+              255*dbbi^2*pCi^4))*Cos[tti] + 7*(-12*bbCi*dbbi - 66*dbbi^2 + 
+            1001*bbCi^2*dbbi^2*pCi^2 + 154*bbCi^3*dbbi*pCi*(2*dpi + pCi) - 
+            560*bbCi^5*dbbi*pCi^3*(4*dpi + pCi) + 450*bbCi^7*dbbi*pCi^5*
+             (6*dpi + pCi) + 75*bbCi^8*dpi*pCi^4*(5*dpi + 2*pCi) + 
+            bbCi^4*(11*dpi^2 + 22*dpi*pCi - 4200*dbbi^2*pCi^4) + 
+            5*bbCi^6*pCi^2*(-42*dpi^2 - 28*dpi*pCi + 765*dbbi^2*pCi^4))*
+           Cos[3*tti])) + 8*(96*bbCi^3*dxi*j2 - 18*bbCi^10*j2^2*
+         (bbCi^3*dpi*pCi*(-9 + 16*bbCi^2*pCi^2) + 
+          dbbi*(4 - 45*bbCi^2*pCi^2 + 48*bbCi^4*pCi^4))*Cos[5*tt] + 
+        144*bbCi^6*dbbi*j2*Cos[tti] + 216*bbCi^5*dbbi^2*j2*Cos[tti] - 
+        180*bbCi^9*dpi^2*j2*Cos[tti] + 666*bbCi^10*dbbi*j2^2*Cos[tti] - 
+        360*bbCi^9*dpi*j2*pCi*Cos[tti] - 2160*bbCi^8*dbbi*dpi*j2*pCi*
+         Cos[tti] - 909*bbCi^13*dpi*j2^2*pCi*Cos[tti] - 
+        1080*bbCi^8*dbbi*j2*pCi^2*Cos[tti] - 2700*bbCi^7*dbbi^2*j2*pCi^2*
+         Cos[tti] - 4545*bbCi^12*dbbi*j2^2*pCi^2*Cos[tti] + 
+        405*bbCi^15*dpi*j2^2*pCi^3*Cos[tti] + 1215*bbCi^14*dbbi*j2^2*pCi^4*
+         Cos[tti] - 144*bbCi^7*dxi*j2^2*Cos[2*tti] + 72*bbCi^9*dxi*j2^2*pCi^2*
+         Cos[2*tti] - 576*bbCi^6*dbbi*j2^2*xCi*Cos[2*tti] + 
+        144*bbCi^9*dpi*j2^2*pCi*xCi*Cos[2*tti] + 432*bbCi^8*dbbi*j2^2*pCi^2*
+         xCi*Cos[2*tti] - 24*bbCi*j2*kC*R*rhoC*yCi*Cos[2*tti] + 
+        24*bbCi*j2*kD*R*rhoD*yCi*Cos[2*tti] + 6*bbCi^5*j2*Cos[3*tt]*
+         (56*bbCi*dbbi + 84*dbbi^2 - 172*bbCi^5*dbbi*j2 + 
+          129*bbCi^8*dpi*j2*pCi - 210*bbCi^2*dbbi^2*pCi^2 + 
+          645*bbCi^7*dbbi*j2*pCi^2 - 172*bbCi^10*dpi*j2*pCi^3 - 
+          516*bbCi^9*dbbi*j2*pCi^4 - 84*bbCi^3*dbbi*pCi*(2*dpi + pCi) - 
+          14*bbCi^4*dpi*(dpi + 2*pCi) + 42*bbCi^5*j2*
+           (bbCi^3*dpi*pCi*(-5 + 6*bbCi^2*pCi^2) + 
+            dbbi*(8 - 25*bbCi^2*pCi^2 + 18*bbCi^4*pCi^4))*Cos[2*tti]) + 
+        36*bbCi^5*j2*Cos[tt]*(-4*bbCi*dbbi - 6*dbbi^2 + 5*bbCi^4*dpi^2 - 
+          12*bbCi^5*dbbi*j2 + 2*bbCi^3*dpi*(5*bbCi + 30*dbbi + 3*bbCi^5*j2)*
+           pCi + 15*bbCi^2*dbbi*(2*bbCi + 5*dbbi + 2*bbCi^5*j2)*pCi^2 + 
+          42*bbCi^10*dpi*j2*pCi^3 + 126*bbCi^9*dbbi*j2*pCi^4 - 
+          3*bbCi^5*j2*(bbCi^3*dpi*pCi*(-17 + 30*bbCi^2*pCi^2) + 
+            dbbi*(8 - 85*bbCi^2*pCi^2 + 90*bbCi^4*pCi^4))*Cos[2*tti]) - 
+        336*bbCi^6*dbbi*j2*Cos[3*tti] - 504*bbCi^5*dbbi^2*j2*Cos[3*tti] + 
+        84*bbCi^9*dpi^2*j2*Cos[3*tti] + 276*bbCi^10*dbbi*j2^2*Cos[3*tti] + 
+        168*bbCi^9*dpi*j2*pCi*Cos[3*tti] + 1008*bbCi^8*dbbi*dpi*j2*pCi*
+         Cos[3*tti] - 369*bbCi^13*dpi*j2^2*pCi*Cos[3*tti] + 
+        504*bbCi^8*dbbi*j2*pCi^2*Cos[3*tti] + 1260*bbCi^7*dbbi^2*j2*pCi^2*
+         Cos[3*tti] - 1845*bbCi^12*dbbi*j2^2*pCi^2*Cos[3*tti] + 
+        384*bbCi^15*dpi*j2^2*pCi^3*Cos[3*tti] + 1152*bbCi^14*dbbi*j2^2*pCi^4*
+         Cos[3*tti] - 54*bbCi^7*dxi*j2^2*Cos[4*tti] + 54*bbCi^9*dxi*j2^2*
+         pCi^2*Cos[4*tti] - 216*bbCi^6*dbbi*j2^2*xCi*Cos[4*tti] + 
+        108*bbCi^9*dpi*j2^2*pCi*xCi*Cos[4*tti] + 324*bbCi^8*dbbi*j2^2*pCi^2*
+         xCi*Cos[4*tti] + 234*bbCi^10*dbbi*j2^2*Cos[5*tti] - 
+        180*bbCi^13*dpi*j2^2*pCi*Cos[5*tti] - 900*bbCi^12*dbbi*j2^2*pCi^2*
+         Cos[5*tti] + 243*bbCi^15*dpi*j2^2*pCi^3*Cos[5*tti] + 
+        729*bbCi^14*dbbi*j2^2*pCi^4*Cos[5*tti] - 
+        48*R*(2*bbCi*kC*(-1 + bbCi^4*j2 - 4*bbCi^6*j2*pCi^2)*rhoC + 
+          2*kD*(bbCi - 2*dbbi - bbCi^5*j2 + 4*bbCi^7*j2*pCi^2)*rhoD + 
+          3*bbCi^5*j2*(-1 + bbCi^2*pCi^2)*(-(kC*rhoC) + kD*rhoD)*Cos[2*tti])*
+         Sin[tt] + 112*bbCi^5*j2*(-1 + bbCi^2*pCi^2)*R*(-(kC*rhoC) + kD*rhoD)*
+         Sin[3*tt] - 96*bbCi*kC*R*rhoC*Sin[tti] + 63*bbCi^5*j2*kC*R*rhoC*
+         Sin[tti] - 495*bbCi^7*j2*kC*pCi^2*R*rhoC*Sin[tti] + 
+        96*bbCi*kD*R*rhoD*Sin[tti] - 192*dbbi*kD*R*rhoD*Sin[tti] - 
+        63*bbCi^5*j2*kD*R*rhoD*Sin[tti] + 495*bbCi^7*j2*kD*pCi^2*R*rhoD*
+         Sin[tti] + 3*bbCi*j2*Cos[2*tt]*(-24*bbCi^5*j2*(-2*bbCi*dxi - 
+            8*dbbi*xCi + 6*bbCi^2*dbbi*pCi^2*xCi + bbCi^3*pCi*
+             (dxi*pCi + 2*dpi*xCi)) + 8*R*(kC*rhoC - kD*rhoD)*yCi + 
+          18*bbCi^9*j2*(bbCi^3*dpi*pCi*(-11 + 10*bbCi^2*pCi^2) + 
+            dbbi*(8 - 55*bbCi^2*pCi^2 + 30*bbCi^4*pCi^4))*Cos[tti] - 
+          42*bbCi^9*j2*(bbCi^3*dpi*pCi*(-3 + 2*bbCi^2*pCi^2) + 
+            dbbi*(8 - 15*bbCi^2*pCi^2 + 6*bbCi^4*pCi^4))*Cos[3*tti] - 
+          2*bbCi^4*R*(-(kC*rhoC) + kD*rhoD)*(-23 + 5*bbCi^2*pCi^2 + 
+            7*(-1 + bbCi^2*pCi^2)*Cos[2*tti])*Sin[tti]) + 
+        27*bbCi^5*j2*Cos[4*tt]*(3*bbCi^5*j2*(bbCi^3*dpi*pCi*
+             (-3 + 5*bbCi^2*pCi^2) + dbbi*(2 - 15*bbCi^2*pCi^2 + 
+              15*bbCi^4*pCi^4))*Cos[tti] - 7*bbCi^5*j2*(-1 + bbCi^2*pCi^2)*
+           (bbCi^3*dpi*pCi + dbbi*(-2 + 3*bbCi^2*pCi^2))*Cos[3*tti] - 
+          2*(bbCi*j2*(-(bbCi*dxi) - 4*dbbi*xCi + 6*bbCi^2*dbbi*pCi^2*xCi + 
+              bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi)) + (-1 + bbCi^2*pCi^2)*R*
+             (-(kC*rhoC) + kD*rhoD)*Sin[tti])) + 3*bbCi*j2*Sin[2*tt]*
+         (8*(R*(-(kC*rhoC) + kD*rhoD)*xCi + 6*bbCi^5*j2*
+             (bbCi*dyi*(-1 + 2*bbCi^2*pCi^2) - 4*dbbi*yCi + 4*bbCi^2*pCi*(
+                bbCi*dpi + 3*dbbi*pCi)*yCi)) + 
+          bbCi^4*(-3*(-17 + 37*bbCi^2*pCi^2)*R*(-(kC*rhoC) + kD*rhoD)*
+             Cos[tti] + 7*(-1 + bbCi^2*pCi^2)*R*(-(kC*rhoC) + kD*rhoD)*
+             Cos[3*tti] + 24*bbCi^5*j2*(bbCi^3*dpi*pCi*(9 - 28*bbCi^2*
+                 pCi^2) + dbbi*(-4 + 45*bbCi^2*pCi^2 - 84*bbCi^4*pCi^4) + 
+              7*(bbCi^3*dpi*pCi*(-3 + 4*bbCi^2*pCi^2) + dbbi*
+                 (4 - 15*bbCi^2*pCi^2 + 12*bbCi^4*pCi^4))*Cos[2*tti])*
+             Sin[tti])) + 144*bbCi^7*dyi*j2^2*Sin[2*tti] - 
+        288*bbCi^9*dyi*j2^2*pCi^2*Sin[2*tti] + 24*bbCi*j2*kC*R*rhoC*xCi*
+         Sin[2*tti] - 24*bbCi*j2*kD*R*rhoD*xCi*Sin[2*tti] + 
+        576*bbCi^6*dbbi*j2^2*yCi*Sin[2*tti] - 576*bbCi^9*dpi*j2^2*pCi*yCi*
+         Sin[2*tti] - 1728*bbCi^8*dbbi*j2^2*pCi^2*yCi*Sin[2*tti] + 
+        41*bbCi^5*j2*kC*R*rhoC*Sin[3*tti] - 77*bbCi^7*j2*kC*pCi^2*R*rhoC*
+         Sin[3*tti] - 41*bbCi^5*j2*kD*R*rhoD*Sin[3*tti] + 
+        77*bbCi^7*j2*kD*pCi^2*R*rhoD*Sin[3*tti] + 27*bbCi^5*j2*Sin[4*tt]*
+         (2*(-1 + bbCi^2*pCi^2)*R*(-(kC*rhoC) + kD*rhoD)*Cos[tti] + 
+          bbCi*j2*(8*dbbi*yCi + 2*bbCi*(dyi - bbCi^2*dyi*pCi^2 - 
+              2*bbCi*pCi*(bbCi*dpi + 3*dbbi*pCi)*yCi) - 
+            bbCi^4*(-3*(bbCi^3*dpi*pCi*(-5 + 7*bbCi^2*pCi^2) + 
+                dbbi*(6 - 25*bbCi^2*pCi^2 + 21*bbCi^4*pCi^4))*Sin[tti] + 
+              7*(-1 + bbCi^2*pCi^2)*(bbCi^3*dpi*pCi + dbbi*(-2 + 3*bbCi^2*
+                   pCi^2))*Sin[3*tti]))) + 54*bbCi^6*j2^2*
+         (-(bbCi*dyi) - 4*dbbi*yCi + 6*bbCi^2*dbbi*pCi^2*yCi + 
+          bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi))*Sin[4*tti]) + 
+      3*j2*(tt - tti)*(144*bbCi^10*j2^2*(bbCi*dyi + 8*dbbi*yCi - 
+          150*bbCi^2*dbbi*pCi^2*yCi + 120*bbCi^4*dbbi*pCi^4*yCi - 
+          15*bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi) + 10*bbCi^5*pCi^3*
+           (dyi*pCi + 4*dpi*yCi))*Cos[2*tti] + 108*bbCi^10*j2^2*
+         (bbCi*dyi + 8*dbbi*yCi - 60*bbCi^2*dbbi*pCi^2*yCi + 
+          60*bbCi^4*dbbi*pCi^4*yCi - 6*bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi) + 
+          5*bbCi^5*pCi^3*(dyi*pCi + 4*dpi*yCi))*Cos[4*tti] + 
+        3*bbCi^4*Cos[tti]*(80*R*(bbCi*kC*(1 - 5*bbCi^2*pCi^2)*rhoC + 
+            kD*(-2*dbbi + bbCi*(-1 + 5*bbCi*pCi*(4*dbbi*pCi + 
+                  bbCi*(2*dpi + pCi))))*rhoD) + 27*bbCi^10*j2^2*
+           (-1 + 5*bbCi^2*pCi^2)*(-16*(dbbi - 2*bbCi^3*dpi*pCi - 
+              9*bbCi^2*dbbi*pCi^2 + 5*bbCi^5*dpi*pCi^3 + 15*bbCi^4*dbbi*pCi^
+                4)*Sin[2*tt] + (bbCi^3*dpi*pCi*(-11 + 15*bbCi^2*pCi^2) + 
+              dbbi*(6 - 47*bbCi^2*pCi^2 + 45*bbCi^4*pCi^4))*Sin[4*tt])) + 
+        7*bbCi^4*Cos[3*tti]*(16*R*(bbCi*kC*(-1 + bbCi^2*pCi^2)*rhoC + 
+            kD*(bbCi + 2*dbbi - 4*bbCi^2*dbbi*pCi^2 - bbCi^3*pCi*(2*dpi + 
+                pCi))*rhoD) + 9*bbCi^10*j2^2*
+           (16*(bbCi^3*dpi*pCi*(4 - 17*bbCi^2*pCi^2 + 15*bbCi^4*pCi^4) + 
+              dbbi*(-3 + 28*bbCi^2*pCi^2 - 68*bbCi^4*pCi^4 + 45*bbCi^6*
+                 pCi^6))*Sin[2*tt] - 3*(-1 + bbCi^2*pCi^2)*
+             (bbCi^3*dpi*pCi*(-7 + 15*bbCi^2*pCi^2) + dbbi*(6 - 43*bbCi^2*
+                 pCi^2 + 45*bbCi^4*pCi^4))*Sin[4*tt])) + 
+        4*(111*bbCi^11*dyi*j2^2 + 64*dbbi*kD*R*rhoD*xCi - 
+          32*bbCi*R*(dxi*kD*rhoD - kC*rhoC*xCi + kD*rhoD*xCi) + 
+          288*bbCi^5*dbbi^2*j2*yCi + 888*bbCi^10*dbbi*j2^2*yCi - 
+          7260*bbCi^12*dbbi*j2^2*pCi^2*yCi + 7380*bbCi^14*dbbi*j2^2*pCi^4*
+           yCi + 192*bbCi^6*dbbi*j2*(dyi + yCi) - 726*bbCi^13*j2^2*pCi*
+           (dyi*pCi + 2*dpi*yCi) + 615*bbCi^15*j2^2*pCi^3*
+           (dyi*pCi + 4*dpi*yCi) + 48*bbCi^7*j2*(dyi - 75*dbbi^2*pCi^2*yCi) - 
+          1440*bbCi^8*dbbi*j2*pCi*(dyi*pCi + (2*dpi + pCi)*yCi) - 
+          240*bbCi^9*j2*(dyi*pCi*(2*dpi + pCi) + dpi*(dpi + 2*pCi)*yCi) + 
+          48*bbCi^4*R*(bbCi*kC*(1 - 5*bbCi^2*pCi^2)*rhoC + 
+            kD*(-2*dbbi + bbCi*(-1 + 5*bbCi*pCi*(4*dbbi*pCi + 
+                  bbCi*(2*dpi + pCi))))*rhoD)*Cos[tt] + 
+          bbCi^4*(36*bbCi^6*j2^2*(2*bbCi*dyi + 16*dbbi*yCi - 
+              110*bbCi^2*dbbi*pCi^2*yCi + 60*bbCi^4*dbbi*pCi^4*yCi - 
+              11*bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi) + 5*bbCi^5*pCi^3*(dyi*pCi + 
+                4*dpi*yCi))*Cos[2*tt] - 112*R*(bbCi*kC*(1 - bbCi^2*pCi^2)*
+               rhoC + kD*(-2*dbbi + bbCi*(-1 + bbCi*pCi*(4*dbbi*pCi + 
+                    bbCi*(2*dpi + pCi))))*rhoD)*Cos[3*tt] + 
+            9*bbCi^6*j2^2*(3*(bbCi*dyi + 8*dbbi*yCi - 60*bbCi^2*dbbi*pCi^2*
+                 yCi + 60*bbCi^4*dbbi*pCi^4*yCi - 6*bbCi^3*pCi*(dyi*pCi + 
+                  2*dpi*yCi) + 5*bbCi^5*pCi^3*(dyi*pCi + 4*dpi*yCi))*Cos[
+                4*tt] + 8*(bbCi*dxi + 8*dbbi*xCi - 70*bbCi^2*dbbi*pCi^2*xCi + 
+                120*bbCi^4*dbbi*pCi^4*xCi - 7*bbCi^3*pCi*(dxi*pCi + 
+                  2*dpi*xCi) + 10*bbCi^5*pCi^3*(dxi*pCi + 4*dpi*xCi))*Sin[
+                2*tt] - 3*(bbCi*dxi + 8*dbbi*xCi - 60*bbCi^2*dbbi*pCi^2*xCi + 
+                60*bbCi^4*dbbi*pCi^4*xCi - 6*bbCi^3*pCi*(dxi*pCi + 
+                  2*dpi*xCi) + 5*bbCi^5*pCi^3*(dxi*pCi + 4*dpi*xCi))*Sin[
+                4*tt]))) - 9*bbCi^9*j2*(-8*(24*bbCi*dbbi + 84*dbbi^2 + 
+            141*bbCi^8*dpi*j2*pCi - 990*bbCi^2*dbbi^2*pCi^2 + 
+            987*bbCi^7*dbbi*j2*pCi^2 - 832*bbCi^10*dpi*j2*pCi^3 - 
+            3328*bbCi^9*dbbi*j2*pCi^4 + 1110*bbCi^12*dpi*j2*pCi^5 + 
+            3330*bbCi^11*dbbi*j2*pCi^6 - 220*bbCi^3*dbbi*pCi*(2*dpi + pCi) + 
+            70*bbCi^6*dpi*pCi^2*(3*dpi + 2*pCi) - 22*bbCi^4*
+             (dpi^2 + 2*dpi*pCi - 105*dbbi^2*pCi^4) + 6*bbCi^5*dbbi*
+             (-11*j2 + 70*pCi^3*(4*dpi + pCi))) + 3*bbCi^5*j2*
+           (4*(bbCi^3*dpi*pCi*(47 - 184*bbCi^2*pCi^2 + 105*bbCi^4*pCi^4) + 
+              dbbi*(-36 + 329*bbCi^2*pCi^2 - 736*bbCi^4*pCi^4 + 315*bbCi^6*
+                 pCi^6))*Cos[2*tt] + 3*(bbCi^3*dpi*pCi*(25 - 114*bbCi^2*
+                 pCi^2 + 105*bbCi^4*pCi^4) + dbbi*(-18 + 175*bbCi^2*pCi^2 - 
+                456*bbCi^4*pCi^4 + 315*bbCi^6*pCi^6))*Cos[4*tt]))*Sin[tti] - 
+        144*bbCi^10*j2^2*(bbCi*dxi + 8*dbbi*xCi - 60*bbCi^2*dbbi*pCi^2*xCi + 
+          60*bbCi^4*dbbi*pCi^4*xCi - 6*bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi) + 
+          5*bbCi^5*pCi^3*(dxi*pCi + 4*dpi*xCi))*Sin[2*tti] + 
+        3*bbCi^9*j2*(-448*bbCi*dbbi - 1568*dbbi^2 + 336*bbCi^4*dpi^2 + 
+          522*bbCi^5*dbbi*j2 + bbCi^3*dpi*(672*bbCi + 6720*dbbi - 
+            1487*bbCi^5*j2)*pCi + 7*bbCi^2*(480*bbCi*dbbi + 2160*dbbi^2 - 
+            240*bbCi^4*dpi^2 - 1487*bbCi^5*dbbi*j2)*pCi^2 + 
+          2*bbCi^5*dpi*(-560*bbCi - 6720*dbbi + 5273*bbCi^5*j2)*pCi^3 + 
+          8*bbCi^4*dbbi*(-420*bbCi - 2310*dbbi + 5273*bbCi^5*j2)*pCi^4 - 
+          10755*bbCi^12*dpi*j2*pCi^5 - 32265*bbCi^11*dbbi*j2*pCi^6 + 
+          21*bbCi^5*j2*(4*(bbCi^3*dpi*pCi*(13 - 32*bbCi^2*pCi^2 + 
+                15*bbCi^4*pCi^4) + dbbi*(-12 + 91*bbCi^2*pCi^2 - 
+                128*bbCi^4*pCi^4 + 45*bbCi^6*pCi^6))*Cos[2*tt] + 
+            3*(-1 + bbCi^2*pCi^2)*(bbCi^3*dpi*pCi*(-7 + 15*bbCi^2*pCi^2) + 
+              dbbi*(6 - 43*bbCi^2*pCi^2 + 45*bbCi^4*pCi^4))*Cos[4*tt]))*
+         Sin[3*tti] - 108*bbCi^10*j2^2*(bbCi*dxi + 8*dbbi*xCi - 
+          60*bbCi^2*dbbi*pCi^2*xCi + 60*bbCi^4*dbbi*pCi^4*xCi - 
+          6*bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi) + 5*bbCi^5*pCi^3*
+           (dxi*pCi + 4*dpi*xCi))*Sin[4*tti] + 9*bbCi^14*j2^2*
+         (bbCi^3*dpi*pCi*(427 - 1338*bbCi^2*pCi^2 + 855*bbCi^4*pCi^4) + 
+          dbbi*(-258 + 2989*bbCi^2*pCi^2 - 5352*bbCi^4*pCi^4 + 
+            2565*bbCi^6*pCi^6))*Sin[5*tti]))/(768*bbCi^3*j2)
+ 
+dy[tt_] = (27*bbCi^9*j2^3*(tt - tti)^2*(-8*bbCi*dyi*(1 - 5*bbCi^2*pCi^2)*
+         (bbCi + 8*dbbi - 5*bbCi^2*pCi*(12*dbbi*pCi + bbCi*(4*dpi + pCi))) - 
+        16*(4*bbCi*dbbi + 14*dbbi^2 - 225*bbCi^2*dbbi^2*pCi^2 - 
+          50*bbCi^3*dbbi*pCi*(2*dpi + pCi) + 150*bbCi^5*dbbi*pCi^3*
+           (4*dpi + pCi) + 25*bbCi^6*dpi*pCi^2*(3*dpi + 2*pCi) - 
+          5*bbCi^4*(dpi^2 + 2*dpi*pCi - 165*dbbi^2*pCi^4))*yCi - 
+        bbCi^4*(-3*(-36*bbCi*dbbi - 198*dbbi^2 + 3367*bbCi^2*dbbi^2*pCi^2 + 
+            518*bbCi^3*dbbi*pCi*(2*dpi + pCi) - 2320*bbCi^5*dbbi*pCi^3*
+             (4*dpi + pCi) + 3150*bbCi^7*dbbi*pCi^5*(6*dpi + pCi) + 
+            525*bbCi^8*dpi*pCi^4*(5*dpi + 2*pCi) + 
+            bbCi^4*(37*dpi^2 + 74*dpi*pCi - 17400*dbbi^2*pCi^4) + 
+            5*bbCi^6*pCi^2*(-174*dpi^2 - 116*dpi*pCi + 5355*dbbi^2*pCi^4))*
+           Sin[tti] + 7*(-12*bbCi*dbbi - 66*dbbi^2 + 1001*bbCi^2*dbbi^2*
+             pCi^2 + 154*bbCi^3*dbbi*pCi*(2*dpi + pCi) - 560*bbCi^5*dbbi*
+             pCi^3*(4*dpi + pCi) + 450*bbCi^7*dbbi*pCi^5*(6*dpi + pCi) + 
+            75*bbCi^8*dpi*pCi^4*(5*dpi + 2*pCi) + bbCi^4*(11*dpi^2 + 
+              22*dpi*pCi - 4200*dbbi^2*pCi^4) + 5*bbCi^6*pCi^2*
+             (-42*dpi^2 - 28*dpi*pCi + 765*dbbi^2*pCi^4))*Sin[3*tti])) + 
+      3*j2*(tt - tti)*(4*(9*bbCi^11*dxi*j2^2 - 288*bbCi^5*dbbi^2*j2*xCi + 
+          72*bbCi^10*dbbi*j2^2*xCi - 1140*bbCi^12*dbbi*j2^2*pCi^2*xCi + 
+          1260*bbCi^14*dbbi*j2^2*pCi^4*xCi - 192*bbCi^6*dbbi*j2*(dxi + xCi) - 
+          114*bbCi^13*j2^2*pCi*(dxi*pCi + 2*dpi*xCi) + 105*bbCi^15*j2^2*pCi^3*
+           (dxi*pCi + 4*dpi*xCi) - 48*bbCi^7*j2*(dxi - 75*dbbi^2*pCi^2*xCi) + 
+          1440*bbCi^8*dbbi*j2*pCi*(dxi*pCi + (2*dpi + pCi)*xCi) + 
+          240*bbCi^9*j2*(dxi*pCi*(2*dpi + pCi) + dpi*(dpi + 2*pCi)*xCi) + 
+          64*dbbi*kD*R*rhoD*yCi - 32*bbCi*R*(dyi*kD*rhoD - kC*rhoC*yCi + 
+            kD*rhoD*yCi)) + bbCi^4*(-9*bbCi^5*j2*(64*bbCi*dbbi + 
+            4*(56*dbbi^2 - 20*bbCi^4*dpi^2 + 3*bbCi^5*dbbi*j2) - 
+            2*bbCi^3*dpi*(80*bbCi + 800*dbbi + 63*bbCi^5*j2)*pCi - 
+            2*bbCi^2*(400*bbCi*dbbi + 1800*dbbi^2 - 600*bbCi^4*dpi^2 + 
+              441*bbCi^5*dbbi*j2)*pCi^2 + 4*bbCi^5*dpi*(200*bbCi + 
+              2400*dbbi + 567*bbCi^5*j2)*pCi^3 + 48*bbCi^4*dbbi*
+             (50*bbCi + 275*dbbi + 189*bbCi^5*j2)*pCi^4 - 1590*bbCi^12*dpi*j2*
+             pCi^5 - 4770*bbCi^11*dbbi*j2*pCi^6 - 3*bbCi^5*j2*
+             (1 - 5*bbCi^2*pCi^2)*(-8*(bbCi^3*dpi*pCi*(-17 + 30*bbCi^2*
+                   pCi^2) + dbbi*(9 - 74*bbCi^2*pCi^2 + 90*bbCi^4*pCi^4))*Cos[
+                2*tt] + 3*(bbCi^3*dpi*pCi*(-11 + 15*bbCi^2*pCi^2) + 
+                dbbi*(6 - 47*bbCi^2*pCi^2 + 45*bbCi^4*pCi^4))*Cos[4*tt]))*
+           Cos[tti] - 144*bbCi^6*j2^2*(2*bbCi*dxi + 16*dbbi*xCi - 
+            230*bbCi^2*dbbi*pCi^2*xCi + 300*bbCi^4*dbbi*pCi^4*xCi - 
+            23*bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi) + 25*bbCi^5*pCi^3*
+             (dxi*pCi + 4*dpi*xCi))*Cos[2*tti] + 3*bbCi^5*j2*
+           (448*bbCi*dbbi + 1568*dbbi^2 - 336*bbCi^4*dpi^2 - 
+            834*bbCi^5*dbbi*j2 + bbCi^3*dpi*(-672*bbCi - 6720*dbbi + 
+              1735*bbCi^5*j2)*pCi + 35*bbCi^2*(-96*bbCi*dbbi - 432*dbbi^2 + 
+              48*bbCi^4*dpi^2 + 347*bbCi^5*dbbi*j2)*pCi^2 + 
+            2*bbCi^5*dpi*(560*bbCi + 6720*dbbi - 5469*bbCi^5*j2)*pCi^3 + 
+            24*bbCi^4*dbbi*(140*bbCi + 770*dbbi - 1823*bbCi^5*j2)*pCi^4 + 
+            10755*bbCi^12*dpi*j2*pCi^5 + 32265*bbCi^11*dbbi*j2*pCi^6 - 
+            21*bbCi^5*j2*(8*(bbCi^3*dpi*pCi*(11 - 39*bbCi^2*pCi^2 + 
+                  30*bbCi^4*pCi^4) + dbbi*(-9 + 77*bbCi^2*pCi^2 - 156*bbCi^4*
+                   pCi^4 + 90*bbCi^6*pCi^6))*Cos[2*tt] - 3*(-1 + 
+                bbCi^2*pCi^2)*(bbCi^3*dpi*pCi*(-7 + 15*bbCi^2*pCi^2) + 
+                dbbi*(6 - 43*bbCi^2*pCi^2 + 45*bbCi^4*pCi^4))*Cos[4*tt]))*
+           Cos[3*tti] + 108*bbCi^6*j2^2*(bbCi*dxi + 8*dbbi*xCi - 
+            60*bbCi^2*dbbi*pCi^2*xCi + 60*bbCi^4*dbbi*pCi^4*xCi - 
+            6*bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi) + 5*bbCi^5*pCi^3*
+             (dxi*pCi + 4*dpi*xCi))*Cos[4*tti] - 9*bbCi^10*j2^2*
+           (bbCi^3*dpi*pCi*(427 - 1338*bbCi^2*pCi^2 + 855*bbCi^4*pCi^4) + 
+            dbbi*(-258 + 2989*bbCi^2*pCi^2 - 5352*bbCi^4*pCi^4 + 
+              2565*bbCi^6*pCi^6))*Cos[5*tti] + 
+          4*(-36*bbCi^6*j2^2*(3*bbCi*dxi + 24*dbbi*xCi - 190*bbCi^2*dbbi*pCi^
+                2*xCi + 240*bbCi^4*dbbi*pCi^4*xCi - 19*bbCi^3*pCi*(dxi*pCi + 
+                2*dpi*xCi) + 20*bbCi^5*pCi^3*(dxi*pCi + 4*dpi*xCi))*
+             Cos[2*tt] + 27*bbCi^6*j2^2*(bbCi*dxi + 8*dbbi*xCi - 
+              60*bbCi^2*dbbi*pCi^2*xCi + 60*bbCi^4*dbbi*pCi^4*xCi - 
+              6*bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi) + 5*bbCi^5*pCi^3*(dxi*pCi + 
+                4*dpi*xCi))*Cos[4*tt] + 48*R*(bbCi*kC*(3 - 7*bbCi^2*pCi^2)*
+               rhoC + kD*(-6*dbbi + bbCi*(-3 + 7*bbCi*pCi*(4*dbbi*pCi + 
+                    bbCi*(2*dpi + pCi))))*rhoD)*Sin[tt] + 36*bbCi^6*j2^2*
+             (bbCi*dyi + 8*dbbi*yCi - 60*bbCi^2*dbbi*pCi^2*yCi + 
+              60*bbCi^4*dbbi*pCi^4*yCi - 6*bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi) + 
+              5*bbCi^5*pCi^3*(dyi*pCi + 4*dpi*yCi))*Sin[2*tt] - 
+            112*R*(bbCi*kC*(1 - bbCi^2*pCi^2)*rhoC + kD*(-2*dbbi + 
+                bbCi*(-1 + bbCi*pCi*(4*dbbi*pCi + bbCi*(2*dpi + pCi))))*rhoD)*
+             Sin[3*tt] + 27*bbCi^6*j2^2*(bbCi*dyi + 8*dbbi*yCi - 
+              60*bbCi^2*dbbi*pCi^2*yCi + 60*bbCi^4*dbbi*pCi^4*yCi - 
+              6*bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi) + 5*bbCi^5*pCi^3*(dyi*pCi + 
+                4*dpi*yCi))*Sin[4*tt]) - 
+          3*(16*R*(bbCi*kC*(-7 + 27*bbCi^2*pCi^2)*rhoC + kD*(14*dbbi + 
+                bbCi*(7 - 27*bbCi*pCi*(4*dbbi*pCi + bbCi*(2*dpi + pCi))))*
+               rhoD) + 9*bbCi^10*j2^2*(bbCi^3*dpi*pCi*(25 - 114*bbCi^2*
+                 pCi^2 + 105*bbCi^4*pCi^4) + dbbi*(-18 + 175*bbCi^2*pCi^2 - 
+                456*bbCi^4*pCi^4 + 315*bbCi^6*pCi^6))*(4*Sin[2*tt] + 
+              3*Sin[4*tt]))*Sin[tti] - 288*bbCi^6*j2^2*(bbCi*dyi + 
+            8*dbbi*yCi - 70*bbCi^2*dbbi*pCi^2*yCi + 120*bbCi^4*dbbi*pCi^4*
+             yCi - 7*bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi) + 10*bbCi^5*pCi^3*
+             (dyi*pCi + 4*dpi*yCi))*Sin[2*tti] + 
+          7*(16*R*(bbCi*kC*(-1 + bbCi^2*pCi^2)*rhoC + kD*(bbCi + 2*dbbi - 
+                4*bbCi^2*dbbi*pCi^2 - bbCi^3*pCi*(2*dpi + pCi))*rhoD) + 
+            9*bbCi^10*j2^2*(-1 + bbCi^2*pCi^2)*(bbCi^3*dpi*pCi*(-7 + 
+                15*bbCi^2*pCi^2) + dbbi*(6 - 43*bbCi^2*pCi^2 + 45*bbCi^4*
+                 pCi^4))*(4*Sin[2*tt] + 3*Sin[4*tt]))*Sin[3*tti] + 
+          108*bbCi^6*j2^2*(bbCi*dyi + 8*dbbi*yCi - 60*bbCi^2*dbbi*pCi^2*yCi + 
+            60*bbCi^4*dbbi*pCi^4*yCi - 6*bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi) + 
+            5*bbCi^5*pCi^3*(dyi*pCi + 4*dpi*yCi))*Sin[4*tti])) + 
+      8*(96*bbCi^3*dyi*j2 - 112*bbCi^5*j2*(-1 + bbCi^2*pCi^2)*R*
+         (-(kC*rhoC) + kD*rhoD)*Cos[3*tt] + 96*bbCi*kC*R*rhoC*Cos[tti] - 
+        333*bbCi^5*j2*kC*R*rhoC*Cos[tti] + 693*bbCi^7*j2*kC*pCi^2*R*rhoC*
+         Cos[tti] - 96*bbCi*kD*R*rhoD*Cos[tti] + 192*dbbi*kD*R*rhoD*
+         Cos[tti] + 333*bbCi^5*j2*kD*R*rhoD*Cos[tti] - 693*bbCi^7*j2*kD*pCi^2*
+         R*rhoD*Cos[tti] - 216*bbCi^7*dyi*j2^2*Cos[2*tti] + 
+        288*bbCi^9*dyi*j2^2*pCi^2*Cos[2*tti] - 24*bbCi*j2*kC*R*rhoC*xCi*
+         Cos[2*tti] + 24*bbCi*j2*kD*R*rhoD*xCi*Cos[2*tti] - 
+        864*bbCi^6*dbbi*j2^2*yCi*Cos[2*tti] + 576*bbCi^9*dpi*j2^2*pCi*yCi*
+         Cos[2*tti] + 1728*bbCi^8*dbbi*j2^2*pCi^2*yCi*Cos[2*tti] + 
+        48*R*Cos[tt]*(-2*bbCi*kC*(1 - 2*bbCi^4*j2 + 5*bbCi^6*j2*pCi^2)*rhoC + 
+          2*kD*(bbCi - 2*dbbi - 2*bbCi^5*j2 + 5*bbCi^7*j2*pCi^2)*rhoD + 
+          3*bbCi^5*j2*(-1 + bbCi^2*pCi^2)*(-(kC*rhoC) + kD*rhoD)*
+           Cos[2*tti]) - 41*bbCi^5*j2*kC*R*rhoC*Cos[3*tti] + 
+        77*bbCi^7*j2*kC*pCi^2*R*rhoC*Cos[3*tti] + 41*bbCi^5*j2*kD*R*rhoD*
+         Cos[3*tti] - 77*bbCi^7*j2*kD*pCi^2*R*rhoD*Cos[3*tti] + 
+        54*bbCi^7*dyi*j2^2*Cos[4*tti] - 54*bbCi^9*dyi*j2^2*pCi^2*Cos[4*tti] + 
+        216*bbCi^6*dbbi*j2^2*yCi*Cos[4*tti] - 108*bbCi^9*dpi*j2^2*pCi*yCi*
+         Cos[4*tti] - 324*bbCi^8*dbbi*j2^2*pCi^2*yCi*Cos[4*tti] - 
+        36*bbCi^5*j2*(12*bbCi*dbbi + 18*dbbi^2 - 20*bbCi^5*dbbi*j2 + 
+          32*bbCi^8*dpi*j2*pCi - 105*bbCi^2*dbbi^2*pCi^2 + 
+          160*bbCi^7*dbbi*j2*pCi^2 - 102*bbCi^10*dpi*j2*pCi^3 - 
+          306*bbCi^9*dbbi*j2*pCi^4 - 42*bbCi^3*dbbi*pCi*(2*dpi + pCi) - 
+          7*bbCi^4*dpi*(dpi + 2*pCi) + 9*bbCi^5*j2*
+           (bbCi^3*dpi*pCi*(-9 + 14*bbCi^2*pCi^2) + 
+            dbbi*(8 - 45*bbCi^2*pCi^2 + 42*bbCi^4*pCi^4))*Cos[2*tti])*
+         Sin[tt] + 6*bbCi^5*j2*(56*bbCi*dbbi + 84*dbbi^2 - 
+          148*bbCi^5*dbbi*j2 + 99*bbCi^8*dpi*j2*pCi - 210*bbCi^2*dbbi^2*
+           pCi^2 + 495*bbCi^7*dbbi*j2*pCi^2 - 124*bbCi^10*dpi*j2*pCi^3 - 
+          372*bbCi^9*dbbi*j2*pCi^4 - 84*bbCi^3*dbbi*pCi*(2*dpi + pCi) - 
+          14*bbCi^4*dpi*(dpi + 2*pCi) + 42*bbCi^5*j2*
+           (bbCi^3*dpi*pCi*(-5 + 6*bbCi^2*pCi^2) + 
+            dbbi*(8 - 25*bbCi^2*pCi^2 + 18*bbCi^4*pCi^4))*Cos[2*tti])*
+         Sin[3*tt] - 18*bbCi^10*j2^2*(bbCi^3*dpi*pCi*(-9 + 16*bbCi^2*pCi^2) + 
+          dbbi*(4 - 45*bbCi^2*pCi^2 + 48*bbCi^4*pCi^4))*Sin[5*tt] + 
+        432*bbCi^6*dbbi*j2*Sin[tti] + 648*bbCi^5*dbbi^2*j2*Sin[tti] - 
+        252*bbCi^9*dpi^2*j2*Sin[tti] - 1278*bbCi^10*dbbi*j2^2*Sin[tti] - 
+        504*bbCi^9*dpi*j2*pCi*Sin[tti] - 3024*bbCi^8*dbbi*dpi*j2*pCi*
+         Sin[tti] + 2007*bbCi^13*dpi*j2^2*pCi*Sin[tti] - 
+        1512*bbCi^8*dbbi*j2*pCi^2*Sin[tti] - 3780*bbCi^7*dbbi^2*j2*pCi^2*
+         Sin[tti] + 10035*bbCi^12*dbbi*j2^2*pCi^2*Sin[tti] - 
+        4887*bbCi^15*dpi*j2^2*pCi^3*Sin[tti] - 14661*bbCi^14*dbbi*j2^2*pCi^4*
+         Sin[tti] + 3*bbCi*j2*Sin[2*tt]*(-24*bbCi^5*j2*(-(bbCi*dxi) - 
+            4*dbbi*xCi + 6*bbCi^2*dbbi*pCi^2*xCi + bbCi^3*pCi*
+             (dxi*pCi + 2*dpi*xCi)) + 8*R*(kC*rhoC - kD*rhoD)*yCi + 
+          36*bbCi^9*j2*(bbCi^3*dpi*pCi*(-3 + 5*bbCi^2*pCi^2) + 
+            dbbi*(2 - 15*bbCi^2*pCi^2 + 15*bbCi^4*pCi^4))*Cos[tti] - 
+          84*bbCi^9*j2*(-1 + bbCi^2*pCi^2)*(bbCi^3*dpi*pCi + 
+            dbbi*(-2 + 3*bbCi^2*pCi^2))*Cos[3*tti] - 2*bbCi^4*R*
+           (-(kC*rhoC) + kD*rhoD)*(-11 + 5*bbCi^2*pCi^2 + 
+            7*(-1 + bbCi^2*pCi^2)*Cos[2*tti])*Sin[tti]) + 
+        27*bbCi^5*j2*Sin[4*tt]*(3*bbCi^5*j2*(bbCi^3*dpi*pCi*
+             (-3 + 5*bbCi^2*pCi^2) + dbbi*(2 - 15*bbCi^2*pCi^2 + 
+              15*bbCi^4*pCi^4))*Cos[tti] - 7*bbCi^5*j2*(-1 + bbCi^2*pCi^2)*
+           (bbCi^3*dpi*pCi + dbbi*(-2 + 3*bbCi^2*pCi^2))*Cos[3*tti] - 
+          2*(bbCi*j2*(-(bbCi*dxi) - 4*dbbi*xCi + 6*bbCi^2*dbbi*pCi^2*xCi + 
+              bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi)) + (-1 + bbCi^2*pCi^2)*R*
+             (-(kC*rhoC) + kD*rhoD)*Sin[tti])) - 72*bbCi^7*dxi*j2^2*
+         Sin[2*tti] + 72*bbCi^9*dxi*j2^2*pCi^2*Sin[2*tti] - 
+        288*bbCi^6*dbbi*j2^2*xCi*Sin[2*tti] + 144*bbCi^9*dpi*j2^2*pCi*xCi*
+         Sin[2*tti] + 432*bbCi^8*dbbi*j2^2*pCi^2*xCi*Sin[2*tti] - 
+        24*bbCi*j2*kC*R*rhoC*yCi*Sin[2*tti] + 24*bbCi*j2*kD*R*rhoD*yCi*
+         Sin[2*tti] - 336*bbCi^6*dbbi*j2*Sin[3*tti] - 504*bbCi^5*dbbi^2*j2*
+         Sin[3*tti] + 84*bbCi^9*dpi^2*j2*Sin[3*tti] + 780*bbCi^10*dbbi*j2^2*
+         Sin[3*tti] + 168*bbCi^9*dpi*j2*pCi*Sin[3*tti] + 
+        1008*bbCi^8*dbbi*dpi*j2*pCi*Sin[3*tti] - 675*bbCi^13*dpi*j2^2*pCi*
+         Sin[3*tti] + 504*bbCi^8*dbbi*j2*pCi^2*Sin[3*tti] + 
+        1260*bbCi^7*dbbi^2*j2*pCi^2*Sin[3*tti] - 3375*bbCi^12*dbbi*j2^2*pCi^2*
+         Sin[3*tti] + 744*bbCi^15*dpi*j2^2*pCi^3*Sin[3*tti] + 
+        2232*bbCi^14*dbbi*j2^2*pCi^4*Sin[3*tti] + 27*bbCi^5*j2*Cos[4*tt]*
+         (-2*(-1 + bbCi^2*pCi^2)*R*(-(kC*rhoC) + kD*rhoD)*Cos[tti] + 
+          bbCi*j2*(-8*dbbi*yCi + 2*bbCi*(dyi*(-1 + bbCi^2*pCi^2) + 
+              2*bbCi*pCi*(bbCi*dpi + 3*dbbi*pCi)*yCi) + 
+            bbCi^4*(-3*(bbCi^3*dpi*pCi*(-5 + 7*bbCi^2*pCi^2) + 
+                dbbi*(6 - 25*bbCi^2*pCi^2 + 21*bbCi^4*pCi^4))*Sin[tti] + 
+              7*(-1 + bbCi^2*pCi^2)*(bbCi^3*dpi*pCi + dbbi*(-2 + 3*bbCi^2*
+                   pCi^2))*Sin[3*tti]))) + 3*bbCi*j2*Cos[2*tt]*
+         (8*(R*(kC*rhoC - kD*rhoD)*xCi + 36*bbCi^5*dbbi*j2*yCi + 
+            3*bbCi^6*j2*(dyi*(3 - 4*bbCi^2*pCi^2) - 8*bbCi*pCi*(bbCi*dpi + 
+                3*dbbi*pCi)*yCi)) + bbCi^4*(3*(-25 + 37*bbCi^2*pCi^2)*R*
+             (-(kC*rhoC) + kD*rhoD)*Cos[tti] - 7*(-1 + bbCi^2*pCi^2)*R*
+             (-(kC*rhoC) + kD*rhoD)*Cos[3*tti] + 6*bbCi^5*j2*
+             (3*(bbCi^3*dpi*pCi*(-33 + 56*bbCi^2*pCi^2) + 3*dbbi*
+                 (12 - 55*bbCi^2*pCi^2 + 56*bbCi^4*pCi^4))*Sin[tti] - 
+              7*(bbCi^3*dpi*pCi*(-7 + 8*bbCi^2*pCi^2) + dbbi*(12 - 
+                  35*bbCi^2*pCi^2 + 24*bbCi^4*pCi^4))*Sin[3*tti]))) - 
+        54*bbCi^7*dxi*j2^2*Sin[4*tti] + 54*bbCi^9*dxi*j2^2*pCi^2*Sin[4*tti] - 
+        216*bbCi^6*dbbi*j2^2*xCi*Sin[4*tti] + 108*bbCi^9*dpi*j2^2*pCi*xCi*
+         Sin[4*tti] + 324*bbCi^8*dbbi*j2^2*pCi^2*xCi*Sin[4*tti] + 
+        9*bbCi^10*j2^2*(bbCi^3*dpi*pCi*(-20 + 27*bbCi^2*pCi^2) + 
+          dbbi*(26 - 100*bbCi^2*pCi^2 + 81*bbCi^4*pCi^4))*Sin[5*tti]))/
+     (768*bbCi^3*j2)
+ 
+dp[tt_] = dpi + (R*(tt - tti)*(bbCi^2*kC*pCi*(4 + 3*bbCi^4*j2 - 
+          15*bbCi^6*j2*pCi^2)*rhoC + kD*(-12*dbbi^2*pCi - 
+          6*bbCi^5*dbbi*j2*pCi + 60*bbCi^7*dbbi*j2*pCi^3 - 
+          4*bbCi^2*(dpi + pCi) + 8*bbCi*dbbi*(dpi + pCi) - 
+          3*bbCi^6*j2*(dpi + pCi) + 15*bbCi^8*j2*pCi^2*(3*dpi + pCi))*rhoD - 
+        6*bbCi^5*j2*(bbCi*kC*pCi*(1 - bbCi^2*pCi^2)*rhoC + 
+          kD*(-2*dbbi*pCi + 4*bbCi^2*dbbi*pCi^3 - bbCi*(dpi + pCi) + 
+            bbCi^3*pCi^2*(3*dpi + pCi))*rhoD)*Cos[2*tti]))/(8*bbCi^4) - 
+     (j2*pCi*R*(-(kC*rhoC) + kD*rhoD)*(8*yCi*Cos[tt] - 8*yCi*Cos[tti] + 
+        8*xCi*(-Sin[tt] + Sin[tti]) + bbCi^4*(-3*Cos[tti]*Sin[tt] + 
+          Sin[2*tt] + 7*Sin[tt - 3*tti] + 9*Cos[tt]*Sin[tti] + 
+          bbCi^2*pCi^2*(5*Sin[2*tt] + 3*Cos[tti]*(5*Sin[tt] - 6*Sin[tti]) - 
+            7*(Sin[tt - 3*tti] + 3*Cos[tt]*Sin[tti])) + 3*Sin[2*tti])))/
+      (16*bbCi^2)
+ 
+doo[tt_] = dooi + (3*bbCi^3*j2*pCi*R*(-(kC*rhoC) + kD*rhoD))/2 - 
+     (3*bbCi*j2*R*(-(bbCi^2*kC*pCi*rhoC) + 
+        kD*(3*dbbi^2*pCi + bbCi^2*(dpi + pCi) + 3*bbCi*dbbi*(dpi + pCi))*
+         rhoD)*(tt - tti)^2)/2 + (3*bbCi^2*j2*(tt - tti)*
+       (4*(-(bbCi*dpi*(16*bbCi^2 + 80*bbCi*dbbi + 160*dbbi^2 + 8*bbCi^6*j2 + 
+             72*bbCi^5*dbbi*j2 + 99*bbCi^10*j2^2)) - 
+          (80*bbCi^2*dbbi + 160*dbbi^3 + 288*bbCi^5*dbbi^2*j2 - 
+            60*bbCi^9*dpi^2*j2 + 1287*bbCi^10*dbbi*j2^2 + 
+            8*bbCi*dbbi*(20*dbbi + 9*bbCi^5*j2))*pCi + 60*bbCi^8*dpi*j2*
+           (bbCi + 11*dbbi + 17*bbCi^5*j2)*pCi^2 + 20*bbCi^7*dbbi*j2*
+           (11*bbCi + 55*dbbi + 255*bbCi^5*j2)*pCi^3 - 1475*bbCi^15*dpi*j2^2*
+           pCi^4 - 5015*bbCi^14*dbbi*j2^2*pCi^5) + 3*bbCi^6*j2^2*
+         (-80*(9*dbbi*pCi*xCi - 11*bbCi^2*dbbi*pCi^3*xCi + 
+            bbCi*(dxi*pCi + dpi*xCi) - bbCi^3*pCi^2*(dxi*pCi + 3*dpi*xCi)) + 
+          bbCi^4*(-1 + 5*bbCi^2*pCi^2)*(-(bbCi*dpi) - 13*dbbi*pCi + 
+            25*bbCi^3*dpi*pCi^2 + 85*bbCi^2*dbbi*pCi^3)*(-9*Cos[tt] + 
+            Cos[3*tt]))*Cos[tti] - 12*bbCi^5*j2*(23*bbCi^6*dpi*j2 + 
+          720*dbbi^2*pCi + 299*bbCi^5*dbbi*j2*pCi - 369*bbCi^8*dpi*j2*pCi^2 - 
+          1845*bbCi^7*dbbi*j2*pCi^3 + 500*bbCi^10*dpi*j2*pCi^4 + 
+          1700*bbCi^9*dbbi*j2*pCi^5 + 180*bbCi*dbbi*(dpi + pCi) - 
+          60*bbCi^4*dpi*pCi*(dpi + pCi) - 220*bbCi^3*dbbi*pCi^2*
+           (3*dpi + pCi) + 20*bbCi^2*(dpi - 55*dbbi^2*pCi^3))*Cos[2*tti] + 
+        bbCi^6*j2^2*(-80*(9*dbbi*pCi*xCi - 11*bbCi^2*dbbi*pCi^3*xCi + 
+            bbCi*(dxi*pCi + dpi*xCi) - bbCi^3*pCi^2*(dxi*pCi + 3*dpi*xCi)) - 
+          7*bbCi^4*(bbCi*dpi + 13*dbbi*pCi - 18*bbCi^3*dpi*pCi^2 - 
+            90*bbCi^2*dbbi*pCi^3 + 25*bbCi^5*dpi*pCi^4 + 85*bbCi^4*dbbi*
+             pCi^5)*(-9*Cos[tt] + Cos[3*tt]))*Cos[3*tti] - 
+        240*bbCi^10*j2^2*(-1 + bbCi^2*pCi^2)*(-(bbCi*dpi) - 13*dbbi*pCi + 
+          5*bbCi^3*dpi*pCi^2 + 17*bbCi^2*dbbi*pCi^3)*Cos[4*tti] + 
+        8*(9*bbCi^6*j2^2*(-9*dbbi*pCi*xCi + 55*bbCi^2*dbbi*pCi^3*xCi - 
+            bbCi*(dxi*pCi + dpi*xCi) + 5*bbCi^3*pCi^2*(dxi*pCi + 3*dpi*xCi))*
+           Cos[tt] + bbCi^6*j2^2*((9*dbbi*pCi*xCi - 55*bbCi^2*dbbi*pCi^3*
+               xCi + bbCi*(dxi*pCi + dpi*xCi) - 5*bbCi^3*pCi^2*(dxi*pCi + 
+                3*dpi*xCi))*Cos[3*tt] + 4*(-9*dbbi*pCi*yCi + 
+              55*bbCi^2*dbbi*pCi^3*yCi - bbCi*(dyi*pCi + dpi*yCi) + 
+              5*bbCi^3*pCi^2*(dyi*pCi + 3*dpi*yCi))*Sin[tt]^3) + 
+          8*R*(-(bbCi*kC*pCi*rhoC) + 3*dbbi*kD*pCi*rhoD + bbCi*kD*(dpi + pCi)*
+             rhoD)*Sin[2*tt]) + 12*bbCi^6*j2^2*
+         (20*(9*dbbi*pCi*yCi - 11*bbCi^2*dbbi*pCi^3*yCi + 
+            bbCi*(dyi*pCi + dpi*yCi) - bbCi^3*pCi^2*(dyi*pCi + 3*dpi*yCi)) - 
+          bbCi^4*(3*bbCi*dpi + 39*dbbi*pCi - 66*bbCi^3*dpi*pCi^2 - 
+            330*bbCi^2*dbbi*pCi^3 + 175*bbCi^5*dpi*pCi^4 + 
+            595*bbCi^4*dbbi*pCi^5)*Sin[tt]^3)*Sin[tti] - 
+        4*bbCi^6*j2^2*(20*(9*dbbi*pCi*yCi - 11*bbCi^2*dbbi*pCi^3*yCi + 
+            bbCi*(dyi*pCi + dpi*yCi) - bbCi^3*pCi^2*(dyi*pCi + 3*dpi*yCi)) - 
+          7*bbCi^4*(13*dbbi*pCi + bbCi*(dpi - 18*bbCi^2*dpi*pCi^2 - 
+              90*bbCi*dbbi*pCi^3 + 25*bbCi^4*dpi*pCi^4 + 85*bbCi^3*dbbi*pCi^
+                5))*Sin[tt]^3)*Sin[3*tti]))/128 + 
+     (bbCi^3*j2*(24*pCi*R*(-(kC*rhoC) + kD*rhoD)*Cos[2*tt] - 
+        8*bbCi*j2*(bbCi*dyi*pCi + bbCi*dpi*yCi + 5*dbbi*pCi*yCi)*Cos[3*tt] - 
+        24*bbCi*j2*(bbCi*dxi*pCi + bbCi*dpi*xCi + 5*dbbi*pCi*xCi)*Sin[tt] + 
+        4*bbCi*j2*Cos[3*tti]*(2*(bbCi*dyi*pCi + bbCi*dpi*yCi + 
+            5*dbbi*pCi*yCi) + 7*bbCi^4*(bbCi*dpi + 9*dbbi*pCi - 
+            3*bbCi^3*dpi*pCi^2 - 11*bbCi^2*dbbi*pCi^3)*Sin[tt]^3) + 
+        Cos[tti]*(8*pCi*R*(-(kC*rhoC) + kD*rhoD)*Cos[3*tt] + 
+          12*bbCi*j2*(-6*(bbCi*dyi*pCi + bbCi*dpi*yCi + 5*dbbi*pCi*yCi) + 
+            bbCi^4*(-(bbCi*dpi) - 9*dbbi*pCi + 15*bbCi^3*dpi*pCi^2 + 
+              55*bbCi^2*dbbi*pCi^3)*Sin[tt]^3)) + 
+        6*(bbCi*dpi*(4*bbCi + 20*dbbi + 7*bbCi^5*j2) + 
+          dbbi*(20*bbCi + 40*dbbi + 63*bbCi^5*j2)*pCi - 39*bbCi^8*dpi*j2*
+           pCi^2 - 143*bbCi^7*dbbi*j2*pCi^3)*Sin[2*tt] + 
+        2*Cos[2*tti]*(4*pCi*R*(kC*rhoC - kD*rhoD) - 45*bbCi^5*j2*
+           (-(bbCi*dpi) - 9*dbbi*pCi + 3*bbCi^3*dpi*pCi^2 + 
+            11*bbCi^2*dbbi*pCi^3)*Sin[2*tt]) + 8*bbCi*j2*
+         (bbCi*dxi*pCi + bbCi*dpi*xCi + 5*dbbi*pCi*xCi)*Sin[3*tt] + 
+        3*bbCi^5*j2*(-5*bbCi*dpi - 45*dbbi*pCi + 24*bbCi^3*dpi*pCi^2 + 
+          88*bbCi^2*dbbi*pCi^3)*Sin[4*tt] + 
+        (24*bbCi*j2*(bbCi*dxi*pCi + bbCi*dpi*xCi + 5*dbbi*pCi*xCi) + 
+          3*bbCi^5*j2*(-3*bbCi*dpi - 27*dbbi*pCi + 21*bbCi^3*dpi*pCi^2 + 
+            77*bbCi^2*dbbi*pCi^3)*Cos[3*tt] + 32*pCi*R*(kC*rhoC - kD*rhoD)*
+           Sin[tt]^3)*Sin[tti] + 
+        6*(-(bbCi*dpi*(4*bbCi + 20*dbbi + 7*bbCi^5*j2)) - 
+          dbbi*(20*bbCi + 40*dbbi + 63*bbCi^5*j2)*pCi + 63*bbCi^8*dpi*j2*
+           pCi^2 + 231*bbCi^7*dbbi*j2*pCi^3)*Sin[2*tti] - 
+        bbCi*j2*(8*(bbCi*dxi*pCi + bbCi*dpi*xCi + 5*dbbi*pCi*xCi) + 
+          7*bbCi^4*(-(bbCi*dpi) - 9*dbbi*pCi + 3*bbCi^3*dpi*pCi^2 + 
+            11*bbCi^2*dbbi*pCi^3)*Cos[3*tt])*Sin[3*tti] + 
+        9*Cos[tt]*(8*bbCi*j2*(bbCi*dyi*pCi + bbCi*dpi*yCi + 5*dbbi*pCi*yCi) + 
+          8*pCi*R*(kC*rhoC - kD*rhoD)*Cos[tti] + bbCi^5*j2*
+           ((9*bbCi*dpi + 81*dbbi*pCi - 63*bbCi^3*dpi*pCi^2 - 
+              231*bbCi^2*dbbi*pCi^3)*Sin[tti] + 7*(-(bbCi*dpi) - 9*dbbi*pCi + 
+              3*bbCi^3*dpi*pCi^2 + 11*bbCi^2*dbbi*pCi^3)*Sin[3*tti])) - 
+        3*bbCi^5*j2*(2*bbCi*dpi + 18*dbbi*pCi + 3*bbCi^3*dpi*pCi^2 + 
+          11*bbCi^2*dbbi*pCi^3)*Sin[4*tti]))/32
+ 
+dt[tt_] = (36*R^(3/2)*(tt - tti)^2*
+       (8*R*(bbCi^3*kC*(4 + bbCi^4*j2 - 7*bbCi^6*j2*pCi^2)*rhoC + 
+          kD*(-4*bbCi^3 + 20*bbCi^2*dbbi - 60*bbCi*dbbi^2 + 140*dbbi^3 - 
+            bbCi^7*j2 + bbCi^6*dbbi*j2 - bbCi^5*dbbi^2*j2 + 
+            7*bbCi^9*j2*(dpi + pCi)^2 + 7*bbCi^8*dbbi*j2*pCi*(2*dpi + pCi))*
+           rhoD - 15*bbCi^5*j2*(bbCi^2*kC*(1 - bbCi^2*pCi^2)*rhoC + 
+            kD*(-bbCi^2 + bbCi*dbbi - dbbi^2 + bbCi^4*(dpi + pCi)^2 + 
+              bbCi^3*dbbi*pCi*(2*dpi + pCi))*rhoD)*Cos[2*tti]) + 
+        3*bbCi^11*j2^3*(8*bbCi*dxi*(1 - 5*bbCi^2*pCi^2)*(bbCi + 5*dbbi - 
+            5*bbCi^2*pCi*(9*dbbi*pCi + bbCi*(4*dpi + pCi))) + 
+          40*(bbCi*dbbi + 2*dbbi^2 - 2*bbCi^4*dpi^2 - 
+            4*bbCi^3*(bbCi + 7*dbbi)*dpi*pCi + 2*bbCi^2*(-7*bbCi*dbbi - 
+              21*dbbi^2 + 15*bbCi^4*dpi^2)*pCi^2 + 20*bbCi^5*(bbCi + 9*dbbi)*
+             dpi*pCi^3 + 45*bbCi^4*dbbi*(bbCi + 4*dbbi)*pCi^4)*xCi + 
+          bbCi^4*(9*(1 - 5*bbCi^2*pCi^2)*(3*bbCi*dbbi + 12*dbbi^2 - 
+              5*bbCi^4*dpi^2 - 10*bbCi^3*(bbCi + 11*dbbi)*dpi*pCi + 
+              5*bbCi^2*(-8*bbCi*dbbi - 43*dbbi^2 + 25*bbCi^4*dpi^2)*pCi^2 + 
+              50*bbCi^5*(bbCi + 15*dbbi)*dpi*pCi^3 + 125*bbCi^4*dbbi*(bbCi + 
+                7*dbbi)*pCi^4)*Cos[tti] - 7*(9*bbCi*dbbi + 36*dbbi^2 - 
+              605*bbCi^2*dbbi^2*pCi^2 - 121*bbCi^3*dbbi*pCi*(2*dpi + pCi) + 
+              455*bbCi^5*dbbi*pCi^3*(4*dpi + pCi) - 375*bbCi^7*dbbi*pCi^5*(
+                6*dpi + pCi) - 75*bbCi^8*dpi*pCi^4*(5*dpi + 2*pCi) + 
+              35*bbCi^6*pCi^2*(6*dpi^2 + 4*dpi*pCi - 75*dbbi^2*pCi^4) + 
+              bbCi^4*(-11*dpi^2 - 22*dpi*pCi + 2730*dbbi^2*pCi^4))*
+             Cos[3*tti]))*Sin[tt] + 3*bbCi^11*j2^3*Cos[tt]*
+         (-8*bbCi*dyi*(1 - 5*bbCi^2*pCi^2)*(bbCi + 5*dbbi - 
+            5*bbCi^2*pCi*(9*dbbi*pCi + bbCi*(4*dpi + pCi))) - 
+          40*(bbCi*dbbi + 2*dbbi^2 - 2*bbCi^4*dpi^2 - 
+            4*bbCi^3*(bbCi + 7*dbbi)*dpi*pCi + 2*bbCi^2*(-7*bbCi*dbbi - 
+              21*dbbi^2 + 15*bbCi^4*dpi^2)*pCi^2 + 20*bbCi^5*(bbCi + 9*dbbi)*
+             dpi*pCi^3 + 45*bbCi^4*dbbi*(bbCi + 4*dbbi)*pCi^4)*yCi - 
+          bbCi^4*(-3*(-27*bbCi*dbbi - 108*dbbi^2 + 2035*bbCi^2*dbbi^2*pCi^2 + 
+              407*bbCi^3*dbbi*pCi*(2*dpi + pCi) - 1885*bbCi^5*dbbi*pCi^3*(
+                4*dpi + pCi) + 2625*bbCi^7*dbbi*pCi^5*(6*dpi + pCi) + 
+              525*bbCi^8*dpi*pCi^4*(5*dpi + 2*pCi) + bbCi^4*(37*dpi^2 + 
+                74*dpi*pCi - 11310*dbbi^2*pCi^4) + 5*bbCi^6*pCi^2*(
+                -174*dpi^2 - 116*dpi*pCi + 3675*dbbi^2*pCi^4))*Sin[tti] + 
+            7*(-9*bbCi*dbbi - 36*dbbi^2 + 605*bbCi^2*dbbi^2*pCi^2 + 
+              121*bbCi^3*dbbi*pCi*(2*dpi + pCi) - 455*bbCi^5*dbbi*pCi^3*(
+                4*dpi + pCi) + 375*bbCi^7*dbbi*pCi^5*(6*dpi + pCi) + 
+              75*bbCi^8*dpi*pCi^4*(5*dpi + 2*pCi) + bbCi^4*(11*dpi^2 + 
+                22*dpi*pCi - 2730*dbbi^2*pCi^4) + 35*bbCi^6*pCi^2*(-6*dpi^2 - 
+                4*dpi*pCi + 75*dbbi^2*pCi^4))*Sin[3*tti]))) + 
+      3*bbCi*R^(3/2)*(tt - tti)*(18*bbCi^11*j2^3*
+         (180*(-1 + bbCi^2*pCi^2)*(-(bbCi*dxi) - 5*dbbi*xCi + 
+            9*bbCi^2*dbbi*pCi^2*xCi + bbCi^3*pCi*(dxi*pCi + 4*dpi*xCi)) - 
+          bbCi^4*(2*bbCi^3*dpi*pCi*(133 - 414*bbCi^2*pCi^2 + 225*bbCi^4*pCi^
+                4) + dbbi*(-9 + 1463*bbCi^2*pCi^2 - 2691*bbCi^4*pCi^4 + 
+              1125*bbCi^6*pCi^6))*Cos[tt])*Cos[5*tti] + 
+        63*bbCi^15*j2^3*(1 - bbCi^2*pCi^2)*(-45*(-1 + bbCi^2*pCi^2)*
+           (2*bbCi^3*dpi*pCi + dbbi*(-3 + 5*bbCi^2*pCi^2)) + 
+          7*(2*bbCi^3*dpi*pCi*(-7 + 15*bbCi^2*pCi^2) + 
+            dbbi*(9 - 68*bbCi^2*pCi^2 + 75*bbCi^4*pCi^4))*Cos[2*tt])*
+         Cos[6*tti] + 36*bbCi^7*j2^2*Cos[4*tti]*(150*bbCi^4*dbbi - 
+          830*bbCi^11*dpi*j2*pCi - 1260*bbCi^5*dbbi^2*pCi^2 - 
+          4565*bbCi^10*dbbi*j2*pCi^2 + 2540*bbCi^13*dpi*j2*pCi^3 + 
+          8255*bbCi^12*dbbi*j2*pCi^4 - 1710*bbCi^15*dpi*j2*pCi^5 - 
+          4275*bbCi^14*dbbi*j2*pCi^6 - 420*bbCi^6*dbbi*pCi*(2*dpi + pCi) + 
+          60*bbCi^9*dpi*pCi^2*(3*dpi + 2*pCi) - 60*bbCi^7*
+           (dpi^2 + 2*dpi*pCi - 18*dbbi^2*pCi^4) + 45*bbCi^8*dbbi*
+           (13*j2 + 6*pCi^3*(4*dpi + pCi)) + 72*bbCi^2*dbbi*j2*pCi^2*
+           (xCi - yCi)*(xCi + yCi) - 48*bbCi*j2*(dxi*xCi - dyi*yCi) - 
+          24*dbbi*j2*(xCi^2 - yCi^2) + 12*bbCi^3*(25*dbbi^2 + 
+            4*j2*pCi*(dxi*pCi*xCi - dyi*pCi*yCi + dpi*(xCi - yCi)*(xCi + 
+                yCi))) + 3*bbCi^4*j2*(4*(bbCi*dxi + 5*dbbi*xCi - 
+              42*bbCi^2*dbbi*pCi^2*xCi + 45*bbCi^4*dbbi*pCi^4*xCi - 
+              6*bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi) + 5*bbCi^5*pCi^3*(dxi*pCi + 
+                4*dpi*xCi))*Cos[tt] + 7*bbCi^4*(2*bbCi^3*dpi*pCi*(9 - 
+                46*bbCi^2*pCi^2 + 45*bbCi^4*pCi^4) + dbbi*(-9 + 99*bbCi^2*
+                 pCi^2 - 299*bbCi^4*pCi^4 + 225*bbCi^6*pCi^6))*Cos[2*tt] - 
+            4*(bbCi*dyi + 5*dbbi*yCi - 42*bbCi^2*dbbi*pCi^2*yCi + 
+              45*bbCi^4*dbbi*pCi^4*yCi - 6*bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi) + 
+              5*bbCi^5*pCi^3*(dyi*pCi + 4*dpi*yCi))*Sin[tt])) + 
+        9*bbCi^7*j2*Cos[2*tti]*(128*dbbi^3*pCi^2 + 128*bbCi*dbbi^2*
+           (-10*bbCi^2*j2 + 21*bbCi^4*j2*pCi^2 + 3*pCi*(2*dpi + pCi)) + 
+          2*bbCi*(45*bbCi^10*dpi*j2^2*pCi + 5334*bbCi^12*dpi*j2^2*pCi^3 - 
+            7155*bbCi^14*dpi*j2^2*pCi^5 + 64*bbCi^6*dpi*j2*(dpi + 2*pCi) - 
+            64*j2^2*(7*dxi*xCi + 9*dyi*yCi) + 64*bbCi^2*
+             (dpi^2 + j2^2*pCi^2*(5*dxi*xCi + 11*dyi*yCi) + dpi*pCi*(2 + 
+                j2^2*(5*xCi^2 + 11*yCi^2)))) - dbbi*(640*bbCi^4*j2 + 
+            2943*bbCi^8*j2^2 - 495*bbCi^10*j2^2*pCi^2 - 34671*bbCi^12*j2^2*
+             pCi^4 + 35775*bbCi^14*j2^2*pCi^6 - 896*bbCi^6*j2*pCi*
+             (2*dpi + pCi) + 64*(2 + j2^2*(7*xCi^2 + 9*yCi^2)) - 
+            192*bbCi^2*(2*dpi^2 + 4*dpi*pCi + pCi^2*(2 + j2^2*(5*xCi^2 + 
+                  11*yCi^2)))) + bbCi^4*j2^2*(64*(bbCi*dxi + 5*dbbi*xCi + 
+              35*bbCi^2*dbbi*pCi^2*xCi - 90*bbCi^4*dbbi*pCi^4*xCi + 
+              5*bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi) - 10*bbCi^5*pCi^3*(dxi*pCi + 
+                4*dpi*xCi))*Cos[tt] - 3*bbCi^4*(2*bbCi^3*dpi*pCi*(251 - 
+                1310*bbCi^2*pCi^2 + 1875*bbCi^4*pCi^4) + dbbi*(-261 + 
+                2761*bbCi^2*pCi^2 - 8515*bbCi^4*pCi^4 + 9375*bbCi^6*pCi^6))*
+             Cos[2*tt] + 64*(2*bbCi*dyi + 10*dbbi*yCi - 21*bbCi^2*dbbi*pCi^
+                2*yCi + 45*bbCi^4*dbbi*pCi^4*yCi - 3*bbCi^3*pCi*(dyi*pCi + 
+                2*dpi*yCi) + 5*bbCi^5*pCi^3*(dyi*pCi + 4*dpi*yCi))*
+             Sin[tt])) + 6*bbCi*j2*Cos[tti]*
+         (16*(45*bbCi^11*dxi*j2^2 + 225*bbCi^10*dbbi*j2^2*xCi - 
+            966*bbCi^12*dbbi*j2^2*pCi^2*xCi + 2025*bbCi^14*dbbi*j2^2*pCi^4*
+             xCi - 6*bbCi^6*dbbi*j2*(dxi + xCi) - 138*bbCi^13*j2^2*pCi*
+             (dxi*pCi + 2*dpi*xCi) + 225*bbCi^15*j2^2*pCi^3*
+             (dxi*pCi + 4*dpi*xCi) - 6*bbCi^7*j2*(dxi + 9*dbbi^2*pCi^2*xCi) - 
+            54*bbCi^8*dbbi*j2*pCi*(dxi*pCi + (2*dpi + pCi)*xCi) - 
+            18*bbCi^9*j2*(dxi*pCi*(2*dpi + pCi) + dpi*(dpi + 2*pCi)*xCi) + 
+            40*dbbi*kD*R*rhoD*yCi - 8*bbCi*R*(dyi*kD*rhoD - kC*rhoC*yCi + 
+              kD*rhoD*yCi)) + 6*bbCi^9*j2*(-40*bbCi*dbbi - 80*dbbi^2 + 
+            510*bbCi^8*dpi*j2*pCi + 1680*bbCi^2*dbbi^2*pCi^2 + 
+            2805*bbCi^7*dbbi*j2*pCi^2 - 4092*bbCi^10*dpi*j2*pCi^3 - 
+            13299*bbCi^9*dbbi*j2*pCi^4 + 4470*bbCi^12*dpi*j2*pCi^5 + 
+            11175*bbCi^11*dbbi*j2*pCi^6 + 560*bbCi^3*dbbi*pCi*(2*dpi + pCi) - 
+            400*bbCi^6*dpi*pCi^2*(3*dpi + 2*pCi) + 80*bbCi^4*
+             (dpi^2 + 2*dpi*pCi - 90*dbbi^2*pCi^4) - 225*bbCi^5*dbbi*
+             (j2 + 8*pCi^3*(4*dpi + pCi)))*Cos[tt] + 72*bbCi^10*j2^2*
+           (-1 + 5*bbCi^2*pCi^2)*(-(bbCi*dxi) - 5*dbbi*xCi + 
+            45*bbCi^2*dbbi*pCi^2*xCi + 5*bbCi^3*pCi*(dxi*pCi + 4*dpi*xCi))*
+           Cos[2*tt] - 9*bbCi^14*j2^2*(1 - 5*bbCi^2*pCi^2)^2*
+           (10*bbCi^3*dpi*pCi + dbbi*(-3 + 25*bbCi^2*pCi^2))*Cos[3*tt] - 
+          256*bbCi^4*R*(bbCi*kC*(1 - 5*bbCi^2*pCi^2)*rhoC + 
+            kD*(dbbi + bbCi*(-1 + 5*bbCi*pCi*(dbbi*pCi + bbCi*(2*dpi + 
+                    pCi))))*rhoD)*Sin[tt] + 72*bbCi^10*j2^2*
+           (-1 + 5*bbCi^2*pCi^2)*(-(bbCi*dyi) - 5*dbbi*yCi + 
+            45*bbCi^2*dbbi*pCi^2*yCi + 5*bbCi^3*pCi*(dyi*pCi + 4*dpi*yCi))*
+           Sin[2*tt]) + 2*bbCi^5*j2*Cos[3*tti]*
+         (12*bbCi^2*j2*(-83*bbCi^5*dxi*j2 - 415*bbCi^4*dbbi*j2*xCi + 
+            4466*bbCi^6*dbbi*j2*pCi^2*xCi - 4995*bbCi^8*dbbi*j2*pCi^4*xCi - 
+            72*dbbi*(dxi + xCi) + 638*bbCi^7*j2*pCi*(dxi*pCi + 2*dpi*xCi) - 
+            555*bbCi^9*j2*pCi^3*(dxi*pCi + 4*dpi*xCi) - 
+            72*bbCi*(dxi - 3*dbbi^2*pCi^2*xCi) + 216*bbCi^2*dbbi*pCi*
+             (dxi*pCi + (2*dpi + pCi)*xCi) + 72*bbCi^3*
+             (dxi*pCi*(2*dpi + pCi) + dpi*(dpi + 2*pCi)*xCi)) + 
+          3*bbCi^5*j2*(560*bbCi*dbbi + 1120*dbbi^2 - 672*bbCi^4*dpi^2 + 
+            747*bbCi^5*dbbi*j2 - 14*bbCi^3*dpi*(96*bbCi + 672*dbbi + 
+              29*bbCi^5*j2)*pCi - 7*bbCi^2*(672*bbCi*dbbi + 2016*dbbi^2 - 
+              480*bbCi^4*dpi^2 + 319*bbCi^5*dbbi*j2)*pCi^2 + 
+            4*bbCi^5*dpi*(560*bbCi + 5040*dbbi - 723*bbCi^5*j2)*pCi^3 + 
+            3*bbCi^4*dbbi*(1680*bbCi + 6720*dbbi - 3133*bbCi^5*j2)*pCi^4 + 
+            3330*bbCi^12*dpi*j2*pCi^5 + 8325*bbCi^11*dbbi*j2*pCi^6)*Cos[tt] - 
+          504*bbCi^6*j2^2*(bbCi*dxi + 5*dbbi*xCi - 42*bbCi^2*dbbi*pCi^2*xCi + 
+            45*bbCi^4*dbbi*pCi^4*xCi - 6*bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi) + 
+            5*bbCi^5*pCi^3*(dxi*pCi + 4*dpi*xCi))*Cos[2*tt] + 
+          21*bbCi^10*j2^2*(-1 + 5*bbCi^2*pCi^2)*(-22*bbCi^3*dpi*pCi + 
+            30*bbCi^5*dpi*pCi^3 + dbbi*(9 - 76*bbCi^2*pCi^2 + 
+              75*bbCi^4*pCi^4))*Cos[3*tt] + 
+          896*R*(bbCi*kC*(1 - bbCi^2*pCi^2)*rhoC + 
+            kD*(dbbi + bbCi*(-1 + bbCi*pCi*(dbbi*pCi + bbCi*(2*dpi + pCi))))*
+             rhoD)*Sin[tt] - 504*bbCi^6*j2^2*(bbCi*dyi + 5*dbbi*yCi - 
+            42*bbCi^2*dbbi*pCi^2*yCi + 45*bbCi^4*dbbi*pCi^4*yCi - 
+            6*bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi) + 5*bbCi^5*pCi^3*
+             (dyi*pCi + 4*dpi*yCi))*Sin[2*tt]) - 
+        4*(1280*bbCi*dbbi^3 - 1920*dbbi^4 - 2370*bbCi^11*dbbi*j2^2 + 
+          15102*bbCi^18*dpi*j2^3*pCi + 41580*bbCi^12*dbbi^2*j2^2*pCi^2 + 
+          83061*bbCi^17*dbbi*j2^3*pCi^2 - 75720*bbCi^20*dpi*j2^3*pCi^3 - 
+          246090*bbCi^19*dbbi*j2^3*pCi^4 + 87930*bbCi^22*dpi*j2^3*pCi^5 + 
+          219825*bbCi^21*dbbi*j2^3*pCi^6 + 13860*bbCi^13*dbbi*j2^2*pCi*
+           (2*dpi + pCi) - 4740*bbCi^16*dpi*j2^2*pCi^2*(3*dpi + 2*pCi) + 
+          180*bbCi^14*j2^2*(11*dpi^2 + 22*dpi*pCi - 474*dbbi^2*pCi^4) - 
+          54*bbCi^15*dbbi*j2^2*(114*j2 + 395*pCi^3*(4*dpi + pCi)) - 
+          192*bbCi^4*j2^2*(dxi^2 + 2*dxi*xCi + dyi*(dyi + 2*yCi)) + 
+          48*bbCi^8*j2*(48*dbbi^2*pCi*(2*dpi + pCi) - 
+            j2^2*(13*dxi*xCi + 31*dyi*yCi)) - 384*bbCi^2*dbbi^2*
+           (2 + 3*j2^2*(xCi^2 + yCi^2)) - 24*bbCi^7*dbbi*j2*
+           (8 - 32*dbbi^2*pCi^2 + j2^2*(13*xCi^2 + 31*yCi^2)) + 
+          192*bbCi^3*dbbi*(2 + 3*j2^2*(2*dxi*xCi + xCi^2 + yCi*(2*dyi + 
+                yCi))) + 12*bbCi^10*j2*(64*dpi^2 + 
+            j2*(-395*dbbi^2 + 12*j2*pCi^2*(23*dxi*xCi + 29*dyi*yCi)) + 
+            4*dpi*pCi*(32 + j2^2*(69*xCi^2 + 87*yCi^2))) + 
+          72*bbCi^9*dbbi*j2*(32*dpi^2 + 64*dpi*pCi + 
+            pCi^2*(32 + j2^2*(69*xCi^2 + 87*yCi^2))) + 
+          4*bbCi*j2*(63*bbCi^11*dxi*j2^2 + 315*bbCi^10*dbbi*j2^2*xCi - 
+            2730*bbCi^12*dbbi*j2^2*pCi^2*xCi + 5535*bbCi^14*dbbi*j2^2*pCi^4*
+             xCi + 48*bbCi^6*dbbi*j2*(dxi + xCi) - 390*bbCi^13*j2^2*pCi*
+             (dxi*pCi + 2*dpi*xCi) + 615*bbCi^15*j2^2*pCi^3*
+             (dxi*pCi + 4*dpi*xCi) + 48*bbCi^7*j2*(dxi - 15*dbbi^2*pCi^2*
+               xCi) - 720*bbCi^8*dbbi*j2*pCi*(dxi*pCi + (2*dpi + pCi)*xCi) - 
+            240*bbCi^9*j2*(dxi*pCi*(2*dpi + pCi) + dpi*(dpi + 2*pCi)*xCi) - 
+            640*dbbi*kD*R*rhoD*yCi + 128*bbCi*R*(dyi*kD*rhoD - kC*rhoC*yCi + 
+              kD*rhoD*yCi))*Cos[tt] + 9*bbCi^7*j2^3*(81*bbCi^8*dbbi - 
+            162*bbCi^11*dpi*pCi - 891*bbCi^10*dbbi*pCi^2 + 
+            828*bbCi^13*dpi*pCi^3 + 2691*bbCi^12*dbbi*pCi^4 - 
+            810*bbCi^15*dpi*pCi^5 - 2025*bbCi^14*dbbi*pCi^6 - 
+            16*dbbi*(xCi - yCi)*(xCi + yCi) - 32*bbCi*(dxi*xCi - dyi*yCi) + 
+            240*bbCi^2*dbbi*pCi^2*(xCi^2 - yCi^2) + 160*bbCi^3*pCi*
+             (dxi*pCi*xCi - dyi*pCi*yCi + dpi*(xCi - yCi)*(xCi + yCi)))*
+           Cos[2*tt] - 12*bbCi^11*j2^3*(1 - 5*bbCi^2*pCi^2)*
+           (bbCi*dxi + 5*dbbi*xCi - 45*bbCi^2*dbbi*pCi^2*xCi - 
+            5*bbCi^3*pCi*(dxi*pCi + 4*dpi*xCi))*Cos[3*tt] + 
+          4*bbCi*j2*(147*bbCi^11*dyi*j2^2 + 640*dbbi*kD*R*rhoD*xCi - 
+            128*bbCi*R*(dxi*kD*rhoD - kC*rhoC*xCi + kD*rhoD*xCi) + 
+            735*bbCi^10*dbbi*j2^2*yCi - 7098*bbCi^12*dbbi*j2^2*pCi^2*yCi + 
+            10395*bbCi^14*dbbi*j2^2*pCi^4*yCi + 48*bbCi^6*dbbi*j2*
+             (dyi + yCi) - 1014*bbCi^13*j2^2*pCi*(dyi*pCi + 2*dpi*yCi) + 
+            1155*bbCi^15*j2^2*pCi^3*(dyi*pCi + 4*dpi*yCi) + 
+            48*bbCi^7*j2*(dyi - 15*dbbi^2*pCi^2*yCi) - 720*bbCi^8*dbbi*j2*pCi*
+             (dyi*pCi + (2*dpi + pCi)*yCi) - 240*bbCi^9*j2*
+             (dyi*pCi*(2*dpi + pCi) + dpi*(dpi + 2*pCi)*yCi))*Sin[tt] - 
+          8*bbCi^5*j2*(dbbi*kD*R*rhoD + bbCi*R*(kC*rhoC - kD*rhoD) - 
+            540*bbCi^4*dbbi*j2^2*pCi^2*xCi*yCi - 180*bbCi^5*j2^2*pCi*
+             (dyi*pCi*xCi + dxi*pCi*yCi + 2*dpi*xCi*yCi) + 
+            bbCi^2*dbbi*(7*kD*pCi^2*R*rhoD + 36*j2^2*xCi*yCi) + 
+            bbCi^3*(14*dpi*kD*pCi*R*rhoD + 7*pCi^2*R*(-(kC*rhoC) + kD*rhoD) + 
+              36*j2^2*(dyi*xCi + dxi*yCi)))*Sin[2*tt] - 12*bbCi^11*j2^3*
+           (1 - 5*bbCi^2*pCi^2)*(bbCi*dyi + 5*dbbi*yCi - 45*bbCi^2*dbbi*pCi^2*
+             yCi - 5*bbCi^3*pCi*(dyi*pCi + 4*dpi*yCi))*Sin[3*tt]) - 
+        6*bbCi*j2*(32*(-69*bbCi^11*dyi*j2^2 + 20*dbbi*kD*R*rhoD*xCi - 
+            4*bbCi*R*(dxi*kD*rhoD - kC*rhoC*xCi + kD*rhoD*xCi) - 
+            345*bbCi^10*dbbi*j2^2*yCi + 1596*bbCi^12*dbbi*j2^2*pCi^2*yCi - 
+            2025*bbCi^14*dbbi*j2^2*pCi^4*yCi - 15*bbCi^6*dbbi*j2*
+             (dyi + yCi) + 228*bbCi^13*j2^2*pCi*(dyi*pCi + 2*dpi*yCi) - 
+            225*bbCi^15*j2^2*pCi^3*(dyi*pCi + 4*dpi*yCi) + 
+            3*bbCi^7*j2*(-5*dyi + 27*dbbi^2*pCi^2*yCi) + 81*bbCi^8*dbbi*j2*
+             pCi*(dyi*pCi + (2*dpi + pCi)*yCi) + 27*bbCi^9*j2*
+             (dyi*pCi*(2*dpi + pCi) + dpi*(dpi + 2*pCi)*yCi)) - 
+          512*bbCi^4*R*(bbCi*kC*(1 - 3*bbCi^2*pCi^2)*rhoC + 
+            kD*(dbbi + bbCi*(-1 + 3*bbCi*pCi*(dbbi*pCi + bbCi*(2*dpi + 
+                    pCi))))*rhoD)*Cos[tt] + 3*bbCi^9*j2*
+           (24*bbCi*j2*(3*bbCi*dyi + 15*dbbi*yCi - 154*bbCi^2*dbbi*pCi^2*
+               yCi + 315*bbCi^4*dbbi*pCi^4*yCi - 22*bbCi^3*pCi*(dyi*pCi + 
+                2*dpi*yCi) + 35*bbCi^5*pCi^3*(dyi*pCi + 4*dpi*yCi))*
+             Cos[2*tt] + 4*(60*bbCi*dbbi + 120*dbbi^2 - 88*bbCi^4*dpi^2 + 
+              99*bbCi^5*dbbi*j2 + 2*bbCi^3*dpi*(-88*bbCi - 616*dbbi + 
+                3*bbCi^5*j2)*pCi + bbCi^2*(-616*bbCi*dbbi - 1848*dbbi^2 + 
+                840*bbCi^4*dpi^2 + 33*bbCi^5*dbbi*j2)*pCi^2 + 
+              4*bbCi^5*dpi*(140*bbCi + 1260*dbbi - 157*bbCi^5*j2)*pCi^3 + 
+              bbCi^4*dbbi*(1260*bbCi + 5040*dbbi - 2041*bbCi^5*j2)*pCi^4 + 
+              1290*bbCi^12*dpi*j2*pCi^5 + 3225*bbCi^11*dbbi*j2*pCi^6)*
+             Sin[tt] - 24*bbCi*j2*(3*bbCi*dxi + 15*dbbi*xCi - 
+              154*bbCi^2*dbbi*pCi^2*xCi + 315*bbCi^4*dbbi*pCi^4*xCi - 
+              22*bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi) + 35*bbCi^5*pCi^3*(
+                dxi*pCi + 4*dpi*xCi))*Sin[2*tt] + bbCi^5*j2*
+             (-1 + 5*bbCi^2*pCi^2)*(2*bbCi^3*dpi*pCi*(-37 + 105*bbCi^2*
+                 pCi^2) + dbbi*(27 - 272*bbCi^2*pCi^2 + 525*bbCi^4*pCi^4))*
+             Sin[3*tt]))*Sin[tti] - 9*bbCi^5*j2*
+         (32*(3*dbbi*kD*R*rhoD + 3*bbCi*R*(kC*rhoC - kD*rhoD) + 
+            36*bbCi^4*dbbi*j2^2*pCi^2*xCi*yCi + 12*bbCi^5*j2^2*pCi*
+             (dyi*pCi*xCi + dxi*pCi*yCi + 2*dpi*xCi*yCi) + 
+            bbCi^2*dbbi*(kD*pCi^2*R*rhoD - 4*j2^2*xCi*yCi) + 
+            bbCi^3*(2*dpi*kD*pCi*R*rhoD + pCi^2*R*(-(kC*rhoC) + kD*rhoD) - 
+              4*j2^2*(dyi*xCi + dxi*yCi))) + bbCi^6*j2^2*
+           (128*(bbCi*dyi + 5*dbbi*yCi - 49*bbCi^2*dbbi*pCi^2*yCi + 
+              90*bbCi^4*dbbi*pCi^4*yCi - 7*bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi) + 
+              10*bbCi^5*pCi^3*(dyi*pCi + 4*dpi*yCi))*Cos[tt] - 
+            64*(bbCi*dxi + 5*dbbi*xCi - 42*bbCi^2*dbbi*pCi^2*xCi + 
+              45*bbCi^4*dbbi*pCi^4*xCi - 6*bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi) + 
+              5*bbCi^5*pCi^3*(dxi*pCi + 4*dpi*xCi))*Sin[tt] + 
+            3*bbCi^4*(2*bbCi^3*dpi*pCi*(209 - 1178*bbCi^2*pCi^2 + 
+                1785*bbCi^4*pCi^4) + dbbi*(-207 + 2299*bbCi^2*pCi^2 - 
+                7657*bbCi^4*pCi^4 + 8925*bbCi^6*pCi^6))*Sin[2*tt]))*
+         Sin[2*tti] - 2*bbCi^5*j2*(896*R*(bbCi*kC*(1 - bbCi^2*pCi^2)*rhoC + 
+            kD*(dbbi + bbCi*(-1 + bbCi*pCi*(dbbi*pCi + bbCi*(2*dpi + pCi))))*
+             rhoD)*Cos[tt] - 3*bbCi^2*j2*(-4*(353*bbCi^5*dyi*j2 + 
+              1765*bbCi^4*dbbi*j2*yCi - 8246*bbCi^6*dbbi*j2*pCi^2*yCi + 
+              7425*bbCi^8*dbbi*j2*pCi^4*yCi + 72*dbbi*(dyi + yCi) - 
+              1178*bbCi^7*j2*pCi*(dyi*pCi + 2*dpi*yCi) + 825*bbCi^9*j2*pCi^3*(
+                dyi*pCi + 4*dpi*yCi) + 72*bbCi*(dyi - 3*dbbi^2*pCi^2*yCi) - 
+              216*bbCi^2*dbbi*pCi*(dyi*pCi + (2*dpi + pCi)*yCi) - 
+              72*bbCi^3*(dyi*pCi*(2*dpi + pCi) + dpi*(dpi + 2*pCi)*yCi)) + 
+            bbCi^3*(168*bbCi*j2*(bbCi*dyi + 5*dbbi*yCi - 42*bbCi^2*dbbi*pCi^2*
+                 yCi + 45*bbCi^4*dbbi*pCi^4*yCi - 6*bbCi^3*pCi*(dyi*pCi + 
+                  2*dpi*yCi) + 5*bbCi^5*pCi^3*(dyi*pCi + 4*dpi*yCi))*Cos[
+                2*tt] + (560*bbCi*dbbi + 1120*dbbi^2 - 1238*bbCi^8*dpi*j2*
+                 pCi - 14112*bbCi^2*dbbi^2*pCi^2 - 6809*bbCi^7*dbbi*j2*
+                 pCi^2 - 1052*bbCi^10*dpi*j2*pCi^3 - 3419*bbCi^9*dbbi*j2*
+                 pCi^4 + 2610*bbCi^12*dpi*j2*pCi^5 + 6525*bbCi^11*dbbi*j2*
+                 pCi^6 - 4704*bbCi^3*dbbi*pCi*(2*dpi + pCi) + 1120*bbCi^6*dpi*
+                 pCi^2*(3*dpi + 2*pCi) - 672*bbCi^4*(dpi^2 + 2*dpi*pCi - 
+                  30*dbbi^2*pCi^4) + 9*bbCi^5*dbbi*(159*j2 + 560*pCi^3*
+                   (4*dpi + pCi)))*Sin[tt] - 168*bbCi*j2*(bbCi*dxi + 
+                5*dbbi*xCi - 42*bbCi^2*dbbi*pCi^2*xCi + 45*bbCi^4*dbbi*pCi^4*
+                 xCi - 6*bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi) + 5*bbCi^5*pCi^3*
+                 (dxi*pCi + 4*dpi*xCi))*Sin[2*tt] + 7*bbCi^5*j2*(-1 + 
+                5*bbCi^2*pCi^2)*(2*bbCi^3*dpi*pCi*(-11 + 15*bbCi^2*pCi^2) + 
+                dbbi*(9 - 76*bbCi^2*pCi^2 + 75*bbCi^4*pCi^4))*Sin[3*tt])))*
+         Sin[3*tti] - 108*bbCi^7*j2^3*
+         (16*(dbbi*xCi*yCi - 3*bbCi^2*dbbi*pCi^2*xCi*yCi + 
+            bbCi*(dyi*xCi + dxi*yCi) - bbCi^3*pCi*(dyi*pCi*xCi + 
+              dxi*pCi*yCi + 2*dpi*xCi*yCi)) - 
+          bbCi^4*(4*(bbCi*dyi + 5*dbbi*yCi - 42*bbCi^2*dbbi*pCi^2*yCi + 
+              45*bbCi^4*dbbi*pCi^4*yCi - 6*bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi) + 
+              5*bbCi^5*pCi^3*(dyi*pCi + 4*dpi*yCi))*Cos[tt] + 
+            4*(bbCi*dxi + 5*dbbi*xCi - 42*bbCi^2*dbbi*pCi^2*xCi + 
+              45*bbCi^4*dbbi*pCi^4*xCi - 6*bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi) + 
+              5*bbCi^5*pCi^3*(dxi*pCi + 4*dpi*xCi))*Sin[tt] + 
+            7*bbCi^4*(2*bbCi^3*dpi*pCi*(9 - 46*bbCi^2*pCi^2 + 45*bbCi^4*
+                 pCi^4) + dbbi*(-9 + 99*bbCi^2*pCi^2 - 299*bbCi^4*pCi^4 + 
+                225*bbCi^6*pCi^6))*Sin[2*tt]))*Sin[4*tti] + 
+        18*bbCi^11*j2^3*(180*(-1 + bbCi^2*pCi^2)*(-(bbCi*dyi) - 5*dbbi*yCi + 
+            9*bbCi^2*dbbi*pCi^2*yCi + bbCi^3*pCi*(dyi*pCi + 4*dpi*yCi)) - 
+          bbCi^4*(2*bbCi^3*dpi*pCi*(133 - 414*bbCi^2*pCi^2 + 225*bbCi^4*pCi^
+                4) + dbbi*(-9 + 1463*bbCi^2*pCi^2 - 2691*bbCi^4*pCi^4 + 
+              1125*bbCi^6*pCi^6))*Sin[tt])*Sin[5*tti] - 
+        441*bbCi^15*j2^3*(-1 + bbCi^2*pCi^2)*
+         (2*bbCi^3*dpi*pCi*(-7 + 15*bbCi^2*pCi^2) + 
+          dbbi*(9 - 68*bbCi^2*pCi^2 + 75*bbCi^4*pCi^4))*Sin[2*tt]*
+         Sin[6*tti]) + 2*bbCi^2*(192*(4*bbCi^6*dti*Sqrt[mu] - 
+          40*dbbi*kD*R^(5/2)*rhoD + 21*bbCi^5*j2*R^(5/2)*
+           (kC*rhoC - kD*rhoD) + 8*bbCi*R^(5/2)*(-(kC*rhoC) + kD*rhoD) + 
+          69*bbCi^7*j2*pCi^2*R^(5/2)*(-(kC*rhoC) + kD*rhoD)) + 
+        R^(3/2)*(-216*bbCi^6*j2^2*(4*(-(bbCi*dxi) - dbbi*xCi + 
+              3*bbCi^2*dbbi*pCi^2*xCi + bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi)) + 
+            7*bbCi^4*(4*bbCi^3*dpi*pCi*(-2 + 3*bbCi^2*pCi^2) + 
+              dbbi*(5 - 28*bbCi^2*pCi^2 + 27*bbCi^4*pCi^4))*Cos[tt])*
+           Cos[4*tti]*Sin[tt] - 36*bbCi^10*j2^2*(4*bbCi^3*dpi*pCi*
+             (-62 + 69*bbCi^2*pCi^2) + dbbi*(275 - 868*bbCi^2*pCi^2 + 
+              621*bbCi^4*pCi^4))*Cos[5*tti]*Sin[tt] + 441*bbCi^10*j2^2*
+           (-1 + bbCi^2*pCi^2)*(4*bbCi^3*dpi*pCi + 
+            dbbi*(-5 + 9*bbCi^2*pCi^2))*Cos[6*tti]*Sin[2*tt] + 
+          3*bbCi*j2*Cos[2*tti]*(16*bbCi*(bbCi^3*(-23 + 19*bbCi^2*pCi^2)*R*(
+                -(kC*rhoC) + kD*rhoD) + 24*bbCi*dyi*j2*xCi + 
+              24*j2*(bbCi*dxi - 3*dbbi*xCi)*yCi) - 
+            128*(3*bbCi^5*j2*(-5*bbCi*dxi - 5*dbbi*xCi + 12*bbCi^2*dbbi*pCi^2*
+                 xCi + 4*bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi)) + R*(-(kC*rhoC) + 
+                kD*rhoD)*yCi)*Sin[tt] + 3*bbCi^9*j2*(4*bbCi^3*dpi*pCi*(-71 + 
+                207*bbCi^2*pCi^2) + dbbi*(395 - 994*bbCi^2*pCi^2 + 
+                1863*bbCi^4*pCi^4))*Sin[2*tt]) + 12*bbCi*j2*Cos[tti]*
+           (4*(-32*bbCi^2*dyi + 45*bbCi^6*dyi*j2 + 45*bbCi^5*dbbi*j2*yCi - 
+              207*bbCi^7*dbbi*j2*pCi^2*yCi + 96*bbCi*dbbi*(dyi + yCi) - 
+              16*(-5*kC*R*rhoC*xCi + 5*kD*R*rhoD*xCi + 12*dbbi^2*yCi) - 
+              69*bbCi^8*j2*pCi*(dyi*pCi + 2*dpi*yCi)) + 
+            3*bbCi^5*(240*bbCi*dbbi^2*pCi^2 + dbbi*(-16 - 365*bbCi^4*j2 + 
+                1918*bbCi^6*j2*pCi^2 - 1593*bbCi^8*j2*pCi^4 + 240*bbCi^2*pCi*
+                 (2*dpi + pCi)) + 4*bbCi^3*dpi*(20*dpi + 
+                pCi*(40 + 137*bbCi^4*j2 - 177*bbCi^6*j2*pCi^2)))*Sin[tt] - 
+            12*(3*bbCi^5*j2*(-(bbCi*dxi) - dbbi*xCi + 15*bbCi^2*dbbi*pCi^2*
+                 xCi + 5*bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi)) + 8*R*(kC*rhoC - 
+                kD*rhoD)*yCi)*Sin[2*tt] + 15*bbCi^9*j2*(-1 + 5*bbCi^2*pCi^2)*
+             (4*bbCi^3*dpi*pCi + dbbi*(-1 + 9*bbCi^2*pCi^2))*Sin[3*tt]) + 
+          12*bbCi^6*j2*Cos[3*tti]*(92*bbCi*dyi*j2 + 92*dbbi*j2*yCi - 
+            228*bbCi^2*dbbi*j2*pCi^2*yCi - 76*bbCi^3*j2*pCi*
+             (dyi*pCi + 2*dpi*yCi) - 2*(56*bbCi^3*dpi^2 - 2*dbbi*(28 + 
+                115*bbCi^4*j2) + 2*bbCi^2*dpi*(56*bbCi + 168*dbbi + 
+                207*bbCi^5*j2)*pCi + 21*bbCi*dbbi*(8*bbCi + 8*dbbi + 
+                69*bbCi^5*j2)*pCi^2 - 788*bbCi^9*dpi*j2*pCi^3 - 
+              1773*bbCi^8*dbbi*j2*pCi^4)*Sin[tt] - 
+            84*j2*(bbCi*dxi + dbbi*xCi - 3*bbCi^2*dbbi*pCi^2*xCi - 
+              bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi))*Sin[2*tt] + 
+            7*bbCi^4*j2*(4*bbCi^3*dpi*pCi*(3 - 5*bbCi^2*pCi^2) + 
+              dbbi*(-5 + 42*bbCi^2*pCi^2 - 45*bbCi^4*pCi^4))*Sin[3*tt]) + 
+          12*bbCi*j2*(32*(bbCi*dxi*(-4*bbCi + 12*dbbi - 3*bbCi^5*j2 + 
+                9*bbCi^7*j2*pCi^2) + 3*(4*bbCi*dbbi - dbbi*(8*dbbi + 
+                  bbCi^5*j2) + 6*bbCi^8*dpi*j2*pCi + 9*bbCi^7*dbbi*j2*pCi^2)*
+               xCi + 6*R*(-(kC*rhoC) + kD*rhoD)*yCi)*Sin[tt] - 
+            bbCi*(8*bbCi^4*dbbi + 125*bbCi^8*dbbi*j2 - 504*bbCi^11*dpi*j2*
+               pCi - 168*bbCi^5*dbbi^2*pCi^2 - 1764*bbCi^10*dbbi*j2*pCi^2 + 
+              1772*bbCi^13*dpi*j2*pCi^3 + 3987*bbCi^12*dbbi*j2*pCi^4 - 
+              168*bbCi^6*dbbi*pCi*(2*dpi + pCi) - 56*bbCi^7*dpi*(dpi + 
+                2*pCi) - 96*bbCi*j2*(dxi*xCi - dyi*yCi) + 144*dbbi*j2*(
+                xCi^2 - yCi^2))*Sin[2*tt] + 8*bbCi^5*j2*(dbbi*xCi + 
+              bbCi*(dxi - 5*bbCi^2*dxi*pCi^2 - 5*bbCi*pCi*(2*bbCi*dpi + 
+                  3*dbbi*pCi)*xCi))*Sin[3*tt] + 3*bbCi^9*j2*
+             (2*bbCi^3*dpi*pCi*(-17 + 44*bbCi^2*pCi^2) + dbbi*(5 - 
+                119*bbCi^2*pCi^2 + 198*bbCi^4*pCi^4))*Sin[4*tt]) - 
+          48*(R*(-160*dbbi*kD*rhoD + 15*bbCi^5*j2*(kC*rhoC - kD*rhoD) + 
+              32*bbCi*(-(kC*rhoC) + kD*rhoD) + 183*bbCi^7*j2*pCi^2*(
+                -(kC*rhoC) + kD*rhoD))*Sin[tt] + bbCi*j2*
+             (bbCi*dxi*(-32*bbCi + 96*dbbi - 57*bbCi^5*j2 + 57*bbCi^7*j2*
+                 pCi^2) + 3*(32*bbCi*dbbi - 64*dbbi^2 - 19*bbCi^5*dbbi*j2 + 
+                38*bbCi^8*dpi*j2*pCi + 57*bbCi^7*dbbi*j2*pCi^2)*xCi + 
+              80*R*(-(kC*rhoC) + kD*rhoD)*yCi - 3*(8*R*(-(kC*rhoC) + kD*rhoD)*
+                 xCi + 3*bbCi^5*j2*(-3*bbCi*dyi - 3*dbbi*yCi + 21*bbCi^2*dbbi*
+                   pCi^2*yCi + 7*bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi)))*Sin[
+                2*tt] + 2*bbCi^4*(-1 + 5*bbCi^2*pCi^2)*R*(-(kC*rhoC) + 
+                kD*rhoD)*Sin[3*tt]))*Sin[tti] - 24*bbCi*j2*
+           (3*bbCi*(-12*bbCi^4*dbbi - 55*bbCi^8*dbbi*j2 + 224*bbCi^11*dpi*j2*
+               pCi + 60*bbCi^5*dbbi^2*pCi^2 + 784*bbCi^10*dbbi*j2*pCi^2 - 
+              612*bbCi^13*dpi*j2*pCi^3 - 1377*bbCi^12*dbbi*j2*pCi^4 + 
+              60*bbCi^6*dbbi*pCi*(2*dpi + pCi) + 20*bbCi^7*dpi*(dpi + 
+                2*pCi) + 16*bbCi*j2*(dxi*xCi - dyi*yCi) + 24*dbbi*j2*(
+                -xCi^2 + yCi^2)) - 16*(R*(-(kC*rhoC) + kD*rhoD)*xCi + 
+              6*bbCi^5*j2*(-(bbCi*dyi) - dbbi*yCi + 6*bbCi^2*dbbi*pCi^2*yCi + 
+                2*bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi)))*Sin[tt] + 
+            36*bbCi^4*(-1 + 3*bbCi^2*pCi^2)*R*(-(kC*rhoC) + kD*rhoD)*
+             Sin[2*tt])*Sin[2*tti] + 16*bbCi^5*j2*
+           (-((-23 + 59*bbCi^2*pCi^2)*R*(-(kC*rhoC) + kD*rhoD)*Sin[tt]) + 
+            3*bbCi*j2*(-23*bbCi*dxi - 23*dbbi*xCi + 57*bbCi^2*dbbi*pCi^2*
+               xCi + 19*bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi) + 21*(bbCi*dyi + 
+                dbbi*yCi - 3*bbCi^2*dbbi*pCi^2*yCi - bbCi^3*pCi*(dyi*pCi + 
+                  2*dpi*yCi))*Sin[2*tt]))*Sin[3*tti] + 12*bbCi^5*j2*Cos[3*tt]*
+           (-8*(-1 + 5*bbCi^2*pCi^2)*R*(-(kC*rhoC) + kD*rhoD)*Cos[tti] + 
+            bbCi*j2*(-8*dbbi*yCi - 8*bbCi*(dyi - 5*bbCi^2*dyi*pCi^2 - 
+                5*bbCi*pCi*(2*bbCi*dpi + 3*dbbi*pCi)*yCi) + 
+              bbCi^4*(-3*(4*bbCi^3*dpi*pCi*(-11 + 35*bbCi^2*pCi^2) + 
+                  dbbi*(15 - 154*bbCi^2*pCi^2 + 315*bbCi^4*pCi^4))*Sin[tti] + 
+                7*(4*bbCi^3*dpi*pCi*(-3 + 5*bbCi^2*pCi^2) + dbbi*
+                   (5 - 42*bbCi^2*pCi^2 + 45*bbCi^4*pCi^4))*Sin[3*tti]))) - 
+          36*bbCi^5*j2*(2*bbCi^8*dpi*j2*pCi*(-63 + 86*bbCi^2*pCi^2) + 
+            bbCi^5*dbbi*j2*(130 - 441*bbCi^2*pCi^2 + 387*bbCi^4*pCi^4) + 
+            24*bbCi*j2*(-(bbCi*dyi) - dbbi*yCi + 3*bbCi^2*dbbi*pCi^2*yCi + 
+              bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi))*Sin[tt] - 
+            28*(-1 + bbCi^2*pCi^2)*R*(-(kC*rhoC) + kD*rhoD)*Sin[2*tt])*
+           Sin[4*tti]) + 4*R^(3/2)*Cos[tt]*
+         (-12*R*(-160*dbbi*kD*rhoD + 117*bbCi^5*j2*(kC*rhoC - kD*rhoD) + 
+            32*bbCi*(-(kC*rhoC) + kD*rhoD) + 261*bbCi^7*j2*pCi^2*
+             (-(kC*rhoC) + kD*rhoD))*Cos[tti] + 
+          bbCi*j2*(192*(2*bbCi^2*dyi + 3*bbCi^6*dyi*j2 + 3*bbCi^5*dbbi*j2*
+               yCi - 18*bbCi^7*dbbi*j2*pCi^2*yCi - 6*bbCi*dbbi*(dyi + yCi) + 
+              3*(-(kC*R*rhoC*xCi) + kD*R*rhoD*xCi + 4*dbbi^2*yCi) - 
+              6*bbCi^8*j2*pCi*(dyi*pCi + 2*dpi*yCi)) + 
+            96*(R*(-(kC*rhoC) + kD*rhoD)*xCi + 3*bbCi^5*j2*(-6*bbCi*dyi - 
+                6*dbbi*yCi + 21*bbCi^2*dbbi*pCi^2*yCi + 7*bbCi^3*pCi*
+                 (dyi*pCi + 2*dpi*yCi)))*Cos[2*tti] - 
+            4*bbCi^4*(-23 + 59*bbCi^2*pCi^2)*R*(-(kC*rhoC) + kD*rhoD)*
+             Cos[3*tti] - 216*bbCi^5*j2*(-(bbCi*dyi) - dbbi*yCi + 
+              3*bbCi^2*dbbi*pCi^2*yCi + bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi))*
+             Cos[4*tti] - 9*bbCi^5*(336*bbCi*dbbi^2*pCi^2 + dbbi*(-48 - 
+                485*bbCi^4*j2 + 910*bbCi^6*j2*pCi^2 + 351*bbCi^8*j2*pCi^4 + 
+                336*bbCi^2*pCi*(2*dpi + pCi)) + 4*bbCi^3*dpi*(28*dpi + 
+                pCi*(56 + 65*bbCi^4*j2 + 39*bbCi^6*j2*pCi^2)))*Sin[tti] + 
+            96*(3*bbCi^5*j2*(-(bbCi*dxi) - dbbi*xCi + 3*bbCi^2*dbbi*pCi^2*
+                 xCi + bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi)) + R*(-(kC*rhoC) + 
+                kD*rhoD)*yCi)*Sin[2*tti] - 6*bbCi^5*(-56*bbCi^3*dpi^2 + 
+              dbbi*(56 + 500*bbCi^4*j2) - 2*bbCi^2*dpi*(56*bbCi + 168*dbbi + 
+                297*bbCi^5*j2)*pCi - 21*bbCi*dbbi*(8*bbCi + 8*dbbi + 
+                99*bbCi^5*j2)*pCi^2 + 932*bbCi^9*dpi*j2*pCi^3 + 
+              2097*bbCi^8*dbbi*j2*pCi^4)*Sin[3*tti] + 216*bbCi^5*j2*
+             (-(bbCi*dxi) - dbbi*xCi + 3*bbCi^2*dbbi*pCi^2*xCi + 
+              bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi))*Sin[4*tti] + 
+            9*bbCi^9*j2*(4*bbCi^3*dpi*pCi*(-62 + 69*bbCi^2*pCi^2) + 
+              dbbi*(275 - 868*bbCi^2*pCi^2 + 621*bbCi^4*pCi^4))*
+             Sin[5*tti])) + bbCi*j2*R^(3/2)*Cos[2*tt]*
+         (32*bbCi*(bbCi^3*(-25 + 43*bbCi^2*pCi^2)*R*(-(kC*rhoC) + kD*rhoD) - 
+            36*bbCi*dyi*j2*xCi - 36*j2*(bbCi*dxi - 3*dbbi*xCi)*yCi) + 
+          9*(16*(8*R*(-(kC*rhoC) + kD*rhoD)*xCi + 3*bbCi^5*j2*(-(bbCi*dyi) - 
+                dbbi*yCi + 15*bbCi^2*dbbi*pCi^2*yCi + 5*bbCi^3*pCi*
+                 (dyi*pCi + 2*dpi*yCi)))*Cos[tti] - 96*bbCi^4*
+             (-1 + 3*bbCi^2*pCi^2)*R*(-(kC*rhoC) + kD*rhoD)*Cos[2*tti] - 
+            112*bbCi^5*j2*(-(bbCi*dyi) - dbbi*yCi + 3*bbCi^2*dbbi*pCi^2*yCi + 
+              bbCi^3*pCi*(dyi*pCi + 2*dpi*yCi))*Cos[3*tti] + 
+            112*bbCi^4*(-1 + bbCi^2*pCi^2)*R*(-(kC*rhoC) + kD*rhoD)*
+             Cos[4*tti] + 16*(3*bbCi^5*j2*(-3*bbCi*dxi - 3*dbbi*xCi + 
+                21*bbCi^2*dbbi*pCi^2*xCi + 7*bbCi^3*pCi*(dxi*pCi + 
+                  2*dpi*xCi)) + 8*R*(kC*rhoC - kD*rhoD)*yCi)*Sin[tti] - 
+            3*bbCi^9*j2*(4*bbCi^3*dpi*pCi*(-47 + 119*bbCi^2*pCi^2) + 
+              dbbi*(115 - 658*bbCi^2*pCi^2 + 1071*bbCi^4*pCi^4))*Sin[2*tti] - 
+            112*bbCi^5*j2*(-(bbCi*dxi) - dbbi*xCi + 3*bbCi^2*dbbi*pCi^2*xCi + 
+              bbCi^3*pCi*(dxi*pCi + 2*dpi*xCi))*Sin[3*tti] + 
+            84*bbCi^9*j2*(4*bbCi^3*dpi*pCi*(-2 + 3*bbCi^2*pCi^2) + 
+              dbbi*(5 - 28*bbCi^2*pCi^2 + 27*bbCi^4*pCi^4))*Sin[4*tti] - 
+            49*bbCi^9*j2*(-1 + bbCi^2*pCi^2)*(4*bbCi^3*dpi*pCi + 
+              dbbi*(-5 + 9*bbCi^2*pCi^2))*Sin[6*tti]))))/
+     (1536*bbCi^8*Sqrt[mu])
